@@ -9,6 +9,9 @@ import { ManageTemplates } from './components/manage_templates/ManageTemplates';
 import { GfFormSwitch } from './components/Switch/GfFormSwitch';
 import { TimepickerSettings } from '../features/dashboard/timepicker/TimepickerSettings';
 import { DashLinksEditor } from '../features/dashboard/dashlinks/DashLinksEditor';
+import { InfoPopover } from './components/InfoPopover';
+import { DashboardGeneralSettings } from '../features/dashboard/settings/DashboardGeneralSettings';
+import { PanelTimeOverride } from '../features/panel/PanelTimeOverride';
 
 export function registerAngularDirectives() {
   react2AngularDirective('pageHeader', PageHeader, ['model', 'noTabs']);
@@ -64,6 +67,26 @@ export function registerAngularDirectives() {
   // TimepickerSettings — replaces gf-time-picker-settings directive + settings.html
   react2AngularDirective('gfTimePickerSettings', TimepickerSettings, [
     ['dashboard', { watchDepth: 'reference' }],
+  ]);
+
+  // InfoPopover — replaces info-popover Angular directive (46 usage sites).
+  // All existing HTML templates continue to work via this registration.
+  react2AngularDirective('infoPopover', InfoPopover, [
+    'mode',
+  ]);
+
+  // DashboardGeneralSettings — replaces the 'settings' viewId section of
+  // settings.html (tags, editable, timepicker settings, graph tooltip).
+  react2AngularDirective('dashboardGeneralSettings', DashboardGeneralSettings, [
+    ['dashboard', { watchDepth: 'reference' }],
+    ['onFolderChange', { watchDepth: 'reference' }],
+  ]);
+
+  // PanelTimeOverride — replaces the time shift + hide toggle rows in
+  // panel/partials/panelTime.html.
+  react2AngularDirective('panelTimeOverride', PanelTimeOverride, [
+    ['panel', { watchDepth: 'reference' }],
+    ['onChange', { watchDepth: 'reference' }],
   ]);
 
   // DashLinksEditor — replaces dash-links-editor directive + dashlinks/editor.html

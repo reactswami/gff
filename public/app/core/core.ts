@@ -42,7 +42,6 @@ import { dashboardSelector } from './components/dashboard_selector';
 import { formDropdownDirective } from './components/form_dropdown/form_dropdown';
 import { geminiScrollbar } from './components/scroll/scroll';
 import { gfPageDirective } from './components/gf_page';
-import { infoPopover } from './components/info_popover';
 import { linkDirective } from './components/link';
 import { navbarDirective } from './components/navbar/navbar';
 import { pageScrollbar } from './components/scroll/page_scroll';
@@ -63,7 +62,6 @@ export {
   searchDirective,
   switchDirective,
   linkDirective,
-  infoPopover,
   Emitter,
   appEvents,
   dashboardSelector,

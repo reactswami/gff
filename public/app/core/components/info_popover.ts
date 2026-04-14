@@ -64,4 +64,5 @@ export function infoPopover() {
   };
 }
 
-coreModule.directive('infoPopover', infoPopover);
+// Replaced by React component registered in angular_wrappers.ts
+// coreModule.directive('infoPopover', infoPopover);
