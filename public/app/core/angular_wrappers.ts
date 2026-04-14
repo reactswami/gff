@@ -6,6 +6,9 @@ import { SearchResults } from './components/search/SearchResults';
 import { TagFilter } from './components/TagFilter/TagFilter';
 import { ManageDashboards } from './components/manage_dashboards/ManageDashboards';
 import { ManageTemplates } from './components/manage_templates/ManageTemplates';
+import { GfFormSwitch } from './components/Switch/GfFormSwitch';
+import { TimepickerSettings } from '../features/dashboard/timepicker/TimepickerSettings';
+import { DashLinksEditor } from '../features/dashboard/dashlinks/DashLinksEditor';
 
 export function registerAngularDirectives() {
   react2AngularDirective('pageHeader', PageHeader, ['model', 'noTabs']);
@@ -41,9 +44,30 @@ export function registerAngularDirectives() {
     'categoryUid',
   ]);
 
+  // GfFormSwitch — replaces gf-form-switch Angular directive (112 usage sites)
+  // All existing HTML templates continue to work unchanged.
+  react2AngularDirective('gfFormSwitch', GfFormSwitch, [
+    'checked',
+    'label',
+    'labelClass',
+    'switchClass',
+    'tooltip',
+    ['onChange', { watchDepth: 'reference' }],
+  ]);
+
   react2AngularDirective('tagFilter', TagFilter, [
     'tags',
     ['onChange', { watchDepth: 'reference' }],
     ['tagOptions', { watchDepth: 'reference' }],
+  ]);
+
+  // TimepickerSettings — replaces gf-time-picker-settings directive + settings.html
+  react2AngularDirective('gfTimePickerSettings', TimepickerSettings, [
+    ['dashboard', { watchDepth: 'reference' }],
+  ]);
+
+  // DashLinksEditor — replaces dash-links-editor directive + dashlinks/editor.html
+  react2AngularDirective('dashLinksEditor', DashLinksEditor, [
+    ['dashboard', { watchDepth: 'reference' }],
   ]);
 }
