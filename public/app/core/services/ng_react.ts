@@ -113,6 +113,14 @@ function watchProps(watchDepth, scope, watchExpressions, listener) {
     const actualExpr = getPropExpression(expr);
     const exprWatchDepth = getPropWatchDepth(watchDepth, expr);
 
+    // Never watch call expressions like "ctrl.refresh()" or "ctrl.render()".
+    // $watchGroup/$watch evaluates the expression every digest to detect changes,
+    // which INVOKES the function each cycle and causes infdig loops.
+    // Function callback props are stable — they never need to be watched.
+    if (actualExpr && actualExpr.includes('(')) {
+      return;
+    }
+
     if (exprWatchDepth === 'collection' && supportsWatchCollection) {
       scope.$watchCollection(actualExpr, listener);
     } else if (exprWatchDepth === 'reference' && supportsWatchGroup) {
