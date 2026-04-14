@@ -188,11 +188,28 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({ folderId, fo
       x?.uid === 'StatseekerDefault' ? -1 : y?.uid === 'StatseekerDefault' ? 1 : 0
     );
 
+    // Wrap each section's toggle so it calls setSections after mutating,
+    // which triggers a React re-render to show/hide items.
+    const wrapToggle = (section: SearchSection): SearchSection['toggle'] => {
+      const originalToggle = section.toggle;
+      if (!originalToggle) { return undefined; }
+      return (s: SearchSection) =>
+        originalToggle(s).then(updated => {
+          setSections(prev => prev.map(existing =>
+            existing.uid === updated.uid
+              ? { ...existing, expanded: updated.expanded, icon: updated.icon, items: updated.items ?? existing.items }
+              : existing
+          ));
+          return updated;
+        });
+    };
+
     setSections(sorted.map((section, idx) => ({
       ...section,
       checked: false,
       hideHeader: !!(folderId && idx === 0),
       items: section.items.map(item => ({ ...item, checked: false })),
+      toggle: wrapToggle(section),
     })));
   }, [folderId]);
 
