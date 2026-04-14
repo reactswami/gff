@@ -7,6 +7,7 @@ import { contextSrv } from 'app/core/services/context_srv';
 import config from 'app/core/config';
 import {
   CategoryRet,
+  getBackendApiSrv,
   getUniqueList,
   PanelTemplate,
   TemplateType,
@@ -47,10 +48,8 @@ interface ManageTemplatesProps {
 export const ManageTemplates: React.FC<ManageTemplatesProps> = ({
   categoryId,
 }) => {
-  // Services (accessed via window injector pattern used throughout the codebase)
-  const backendApiSrv = (window as any).grafanaBootData
-    ? (window as any).__backendApiSrv
-    : null;
+  // Services
+  const backendApiSrv = getBackendApiSrv();
 
   const [query, setQuery] = useState<Query>({
     query: '',
@@ -170,7 +169,6 @@ export const ManageTemplates: React.FC<ManageTemplatesProps> = ({
   }, [buildCategories, getPanelPlugins]);
 
   useEffect(() => {
-    if (!backendApiSrv) { return; }
     const filterUser = (t: PanelTemplate) =>
       (contextSrv.user as any).isGrafanaAdmin ? true : t.owner === (contextSrv.user as any).login;
 
@@ -338,7 +336,7 @@ export const ManageTemplates: React.FC<ManageTemplatesProps> = ({
       icon: 'fa-trash',
       yesText: 'Delete',
       onConfirm: () => {
-        backendApiSrv?.deleteTemplate(selectedTemplates).then(() => {
+        backendApiSrv.deleteTemplate(selectedTemplates).then(() => {
           appEvents.emit('alert-success', ['Templates deleted']);
           const remaining = templates.filter(t => !selectedTemplates.find(s => s.id === t.id));
           setTemplates(remaining);
