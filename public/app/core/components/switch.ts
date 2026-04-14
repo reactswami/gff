@@ -1,4 +1,3 @@
-import coreModule from 'app/core/core_module';
 
 const template = `
 <label for="check-{{ctrl.id}}" class="gf-form-label {{ctrl.labelClass}} pointer" ng-show="ctrl.label">

@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import appEvents from 'app/core/app_events';
-import coreModule from 'app/core/core_module';
 
 export class SearchResultsCtrl {
   results: any;

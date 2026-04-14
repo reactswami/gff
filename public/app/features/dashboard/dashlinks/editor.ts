@@ -1,4 +1,3 @@
-import angular from 'angular';
 import _ from 'lodash';
 
 export const iconMap = {
@@ -65,18 +64,18 @@ export class DashLinkEditorCtrl {
   }
 }
 
-function dashLinksEditor() {
-  return {
-    restrict: 'E',
-    controller: DashLinkEditorCtrl,
-    templateUrl: 'public/app/features/dashboard/dashlinks/editor.html',
-    bindToController: true,
-    controllerAs: 'ctrl',
-    scope: {
-      dashboard: '=',
-    },
-  };
-}
+// function dashLinksEditor() {
+//   return {
+//     restrict: 'E',
+//     controller: DashLinkEditorCtrl,
+//     templateUrl: 'public/app/features/dashboard/dashlinks/editor.html',
+//     bindToController: true,
+//     controllerAs: 'ctrl',
+//     scope: {
+//       dashboard: '=',
+//     },
+//   };
+// }
 
 // Replaced by DashLinksEditor.tsx registered in angular_wrappers.ts
 // angular.module('grafana.directives').directive('dashLinksEditor', dashLinksEditor);

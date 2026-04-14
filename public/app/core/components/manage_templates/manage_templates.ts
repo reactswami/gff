@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import coreModule from 'app/core/core_module';
 import config from 'app/core/config';
 import appEvents from 'app/core/app_events';
 import { CategoryRet, getUniqueList, PanelTemplate, TemplateType } from 'app/core/services/backendapi_srv';

@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import coreModule from 'app/core/core_module';
 import Drop from 'tether-drop';
 
 export function infoPopover() {
