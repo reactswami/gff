@@ -172,7 +172,7 @@ export const ManageTemplates: React.FC<ManageTemplatesProps> = ({
   useEffect(() => {
     if (!backendApiSrv) { return; }
     const filterUser = (t: PanelTemplate) =>
-      contextSrv.user.isGrafanaAdmin ? true : t.owner === contextSrv.user.login;
+      (contextSrv.user as any).isGrafanaAdmin ? true : t.owner === (contextSrv.user as any).login;
 
     backendApiSrv.getTemplates(contextSrv)
       .then((list: PanelTemplate[]) => {
@@ -322,7 +322,7 @@ export const ManageTemplates: React.FC<ManageTemplatesProps> = ({
   // ── Bulk actions ─────────────────────────────────────────────────────────────
   const canEdit = () => {
     return contextSrv.user.isGrafanaAdmin ||
-      selectedTemplates.some(t => t.owner === contextSrv.user.login);
+      selectedTemplates.some(t => t.owner === (contextSrv.user as any).login);
   };
 
   const handleDelete = () => {
@@ -511,7 +511,7 @@ export const ManageTemplates: React.FC<ManageTemplatesProps> = ({
             onSelectionChanged={handleSelectionChanged}
             onEditSelected={(item: SearchItem) => {
               const t = templates.find(t => t.name === item.title);
-              if (t && (contextSrv.user.login === t.owner || contextSrv.user.isGrafanaAdmin)) {
+              if (t && ((contextSrv.user as any).login === t.owner || (contextSrv.user as any).isGrafanaAdmin)) {
                 // Trigger save-as-template modal (same as original editTemplate)
                 const categories = tagCategoryOptions.filter(c => c.text !== FILTER_BY_CATEGORY);
                 appEvents.emit('show-modal', {

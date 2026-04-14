@@ -6,8 +6,9 @@ import { Switch } from 'app/core/components/Switch/Switch';
 import EmptyListCTA from 'app/core/components/EmptyListCTA/EmptyListCTA';
 import appEvents from 'app/core/app_events';
 import { getBackendSrv } from 'app/core/services/backend_srv';
-import { SearchSrv } from 'app/core/services/search_srv';
 import { contextSrv } from 'app/core/services/context_srv';
+import impressionSrv from 'app/core/services/impression_srv';
+import store from 'app/core/store';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface Query {
@@ -20,41 +21,143 @@ interface Query {
   folderIds: number[];
 }
 
-interface TagFilterOption {
-  term: string;
-  disabled?: boolean;
-}
-
-interface StarredFilterOption {
-  text: string;
-  disabled?: boolean;
-}
+interface TagFilterOption { term: string; disabled?: boolean; }
+interface StarredFilterOption { text: string; disabled?: boolean; }
 
 interface ManageDashboardsProps {
   folderId?: number;
   folderUid?: string;
 }
 
-const dashboardSelect = (el: SearchItem & { uid?: string }) =>
+// ─── Search helpers (mirrors SearchSrv without Angular DI) ───────────────────
+declare const dashboard_data: any;
+const HIDDEN_FILTER = /hidden|^StatseekerDefaultDrilldown.*$/i;
+
+function filterOutHidden(items: any[]) {
+  return items.filter(
+    item =>
+      item &&
+      !item.uid.match(HIDDEN_FILTER) &&
+      !dashboard_data.hidden_dashboards.includes(item.uid)
+  );
+}
+
+async function searchDashboards(query: Query): Promise<SearchSection[]> {
+  const backendSrv = getBackendSrv();
+  const sections: Record<string | number, any> = {};
+  const q: any = { ...query, folderIds: query.folderIds?.length ? query.folderIds : [0] };
+
+  const hasFilters =
+    query.query || (query.tag && query.tag.length > 0) || query.starred ||
+    (query.folderIds && query.folderIds.length > 0);
+
+  const promises: Promise<any>[] = [];
+
+  // Recent dashboards
+  if (!query.skipRecent && !hasFilters) {
+    const dashIds = _.take(impressionSrv.getDashboardOpened(), 5);
+    if (dashIds.length) {
+      promises.push(
+        backendSrv.search({ dashboardIds: dashIds }).then((result: any[]) => {
+          const items = dashIds
+            .map(id => result.find((r: any) => r.id === id))
+            .filter((hit: any) => hit && !hit.isStarred);
+          if (filterOutHidden(items).length > 0) {
+            sections['recent'] = {
+              uid: 'recent', title: 'Recent', icon: 'fa fa-clock-o',
+              score: -1, expanded: store.getBool('search.sections.recent', true),
+              items: filterOutHidden(items), checked: false,
+              toggle: (s: any) => { s.expanded = !s.expanded; return Promise.resolve(s); },
+            };
+          }
+        })
+      );
+    }
+  }
+
+  // Starred dashboards
+  if (!query.skipStarred && !hasFilters) {
+    promises.push(
+      backendSrv.search({ starred: true, limit: 5 }).then((result: any[]) => {
+        if (filterOutHidden(result).length > 0) {
+          sections['starred'] = {
+            uid: 'starred', title: 'Starred', icon: 'fa fa-star-o',
+            score: -2, expanded: store.getBool('search.sections.starred', true),
+            items: filterOutHidden(result), checked: false,
+            toggle: (s: any) => { s.expanded = !s.expanded; return Promise.resolve(s); },
+          };
+        }
+      })
+    );
+  }
+
+  // Main search
+  promises.push(
+    backendSrv.search(q).then((results: any[]) => {
+      if (!results || results.length === 0) { return; }
+
+      const toggleFolder = (section: any) => {
+        section.expanded = !section.expanded;
+        section.icon = section.expanded ? 'fa fa-folder-open' : 'fa fa-folder';
+        if (section.items.length) { return Promise.resolve(section); }
+        return backendSrv.search({ folderIds: [section.id] }).then((res: any[]) => {
+          section.items = filterOutHidden(res).filter((i: any) => i && i.type !== 'dash-folder');
+          return section;
+        });
+      };
+
+      for (const hit of results) {
+        if (hit.type === 'dash-folder' && !dashboard_data.hidden_dashboards.includes(hit.uid)) {
+          sections[hit.id] = {
+            id: hit.id, uid: hit.uid, title: hit.title, url: hit.url,
+            expanded: false, items: [], icon: 'fa fa-folder', checked: false,
+            score: Object.keys(sections).length, toggle: toggleFolder,
+          };
+        }
+      }
+
+      for (const hit of results) {
+        if (hit.type === 'dash-folder') { continue; }
+        let section = sections[hit.folderId || 0];
+        if (!section) {
+          section = hit.folderId
+            ? { id: hit.folderId, uid: hit.folderUid, title: hit.folderTitle,
+                url: hit.folderUrl, items: [], icon: 'fa fa-folder-open', checked: false,
+                score: Object.keys(sections).length, toggle: toggleFolder }
+            : { id: 0, uid: 'general', title: 'General', items: [],
+                icon: 'fa fa-folder-open', checked: false,
+                score: Object.keys(sections).length, toggle: toggleFolder };
+          sections[hit.folderId || 0] = section;
+        }
+        section.expanded = true;
+        if (!hit.uid.match(HIDDEN_FILTER)) { section.items.push(hit); }
+      }
+    })
+  );
+
+  await Promise.all(promises);
+  return _.sortBy(Object.values(sections), 'score') as SearchSection[];
+}
+
+async function getDashboardTags() {
+  return getBackendSrv().get('/api/dashboards/tags');
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const dashboardSelect = (el: any) =>
   el.checked === true && el?.uid?.indexOf('StatseekerDefault') === -1;
 
 // ─── Component ───────────────────────────────────────────────────────────────
-export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
-  folderId,
-  folderUid,
-}) => {
-  const searchSrv = new SearchSrv();
+export const ManageDashboards: React.FC<ManageDashboardsProps> = ({ folderId, folderUid }) => {
   const backendSrv = getBackendSrv();
 
   const [query, setQuery] = useState<Query>({
-    query: '',
-    mode: 'tree',
-    tag: [],
-    starred: false,
-    skipRecent: true,
-    skipStarred: true,
+    query: '', mode: 'tree', tag: [], starred: false,
+    skipRecent: true, skipStarred: true,
     folderIds: folderId ? [folderId] : [],
   });
+  const queryRef = useRef(query);
+  queryRef.current = query;
 
   const [sections, setSections] = useState<SearchSection[]>([]);
   const [hasFilters, setHasFilters] = useState(false);
@@ -64,18 +167,15 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [tagFilterOptions, setTagFilterOptions] = useState<TagFilterOption[]>([]);
   const [selectedTagFilter, setSelectedTagFilter] = useState<TagFilterOption>({ term: 'Filter By Tag', disabled: true });
+
   const starredFilterOptions: StarredFilterOption[] = [
     { text: 'Filter by Starred', disabled: true },
-    { text: 'Yes' },
-    { text: 'No' },
+    { text: 'Yes' }, { text: 'No' },
   ];
   const [selectedStarredFilter, setSelectedStarredFilter] = useState(starredFilterOptions[0]);
+
   const isEditor = contextSrv.isEditor;
   const hasEditPermissionInFolders = contextSrv.hasEditPermissionInFolders;
-
-  // Keep query ref so debounced search always uses fresh value
-  const queryRef = useRef(query);
-  queryRef.current = query;
 
   // ── Data loading ────────────────────────────────────────────────────────────
   const initDashboardList = useCallback((result: SearchSection[], q: Query) => {
@@ -84,31 +184,23 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
     setSelectAllChecked(false);
     setHasFilters(q.query.length > 0 || q.tag.length > 0 || q.starred);
 
-    if (!result) {
-      setSections([]);
-      return;
-    }
-
-    const sorted = result.sort((x: any, y: any) =>
+    const sorted = (result || []).sort((x: any, y: any) =>
       x?.uid === 'StatseekerDefault' ? -1 : y?.uid === 'StatseekerDefault' ? 1 : 0
     );
 
-    const initialised = sorted.map((section, idx) => ({
+    setSections(sorted.map((section, idx) => ({
       ...section,
       checked: false,
       hideHeader: !!(folderId && idx === 0),
       items: section.items.map(item => ({ ...item, checked: false })),
-    }));
-
-    setSections(initialised);
+    })));
   }, [folderId]);
 
   const refreshList = useCallback(async (q?: Query) => {
     const activeQuery = q ?? queryRef.current;
     try {
-      const result = await searchSrv.search(activeQuery);
+      const result = await searchDashboards(activeQuery);
       initDashboardList(result, activeQuery);
-
       if (folderUid) {
         const folder = await backendSrv.getFolderByUid(folderUid);
         setCanSave(folder.canSave);
@@ -120,7 +212,7 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
 
   const initTagFilter = useCallback(async () => {
     try {
-      const results = await searchSrv.getDashboardTags();
+      const results = await getDashboardTags();
       setTagFilterOptions([{ term: 'Filter By Tag', disabled: true }, ...results]);
     } catch (_) {}
   }, []);
@@ -129,7 +221,7 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
     refreshList().then(() => initTagFilter());
   }, []);
 
-  // ── Debounced query change ──────────────────────────────────────────────────
+  // ── Debounced search ────────────────────────────────────────────────────────
   const debouncedSearch = useCallback(
     _.debounce((q: Query) => refreshList(q), 500),
     [refreshList]
@@ -141,24 +233,21 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
     debouncedSearch(next);
   };
 
-  // ── Selection logic ─────────────────────────────────────────────────────────
+  // ── Selection ────────────────────────────────────────────────────────────────
   const handleSelectionChanged = (item: SearchSection | SearchItem) => {
     setSections(prev => {
       const next = prev.map(s => {
         if ('items' in item && s.uid === (item as SearchSection).uid) {
           return { ...s, checked: item.checked, items: s.items.map(i => ({ ...i, checked: item.checked })) };
         }
-        const updatedItems = s.items.map(i =>
+        return { ...s, items: s.items.map(i =>
           i.uid === (item as SearchItem).uid ? { ...i, checked: item.checked } : i
-        );
-        return { ...s, items: updatedItems };
+        )};
       });
-
-      const selectedDashboards = next.reduce((acc, s) =>
-        acc + s.items.filter(dashboardSelect as any).length, 0);
-      const selectedFolders = next.filter(dashboardSelect as any).length;
-      setCanMove(selectedDashboards > 0);
-      setCanDelete(selectedDashboards > 0 || selectedFolders > 0);
+      const selDash = next.reduce((acc, s) => acc + s.items.filter(dashboardSelect).length, 0);
+      const selFolder = next.filter(dashboardSelect).length;
+      setCanMove(selDash > 0);
+      setCanDelete(selDash > 0 || selFolder > 0);
       return next;
     });
   };
@@ -170,37 +259,25 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
       checked: s.hideHeader ? s.checked : checked,
       items: s.items.map(i => ({ ...i, checked })),
     })));
-    const hasSel = checked;
-    setCanMove(hasSel);
-    setCanDelete(hasSel);
+    setCanMove(checked);
+    setCanDelete(checked);
   };
 
-  // ── Filters ─────────────────────────────────────────────────────────────────
+  // ── Filters ──────────────────────────────────────────────────────────────────
   const filterByTag = (tag: string) => {
-    if (!query.tag.includes(tag)) {
-      updateQuery({ tag: [...query.tag, tag] });
+    if (!queryRef.current.tag.includes(tag)) {
+      updateQuery({ tag: [...queryRef.current.tag, tag] });
     }
   };
 
   const removeTag = (tag: string, e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    updateQuery({ tag: query.tag.filter(t => t !== tag) });
+    updateQuery({ tag: queryRef.current.tag.filter(t => t !== tag) });
   };
 
   const removeStarred = () => updateQuery({ starred: false });
-
   const clearFilters = () => updateQuery({ query: '', tag: [], starred: false });
-
-  const onTagFilterChange = (opt: TagFilterOption) => {
-    filterByTag(opt.term);
-    setSelectedTagFilter(tagFilterOptions[0]);
-  };
-
-  const onStarredFilterChange = (opt: StarredFilterOption) => {
-    updateQuery({ starred: opt.text === 'Yes' });
-    setSelectedStarredFilter(starredFilterOptions[0]);
-  };
 
   // ── Bulk actions ─────────────────────────────────────────────────────────────
   const getFoldersAndDashboardsToDelete = () => {
@@ -211,8 +288,7 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
           section.uid.indexOf('StatseekerDefault') === -1) {
         folders.push(section.uid);
       } else {
-        const selected = section.items.filter(dashboardSelect as any);
-        dashboards.push(...selected.map((i: any) => i.uid));
+        dashboards.push(...section.items.filter(dashboardSelect).map((i: any) => i.uid));
       }
     }
     return { folders, dashboards };
@@ -224,7 +300,6 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
     const dc = data.dashboards.length;
     let text = 'Do you want to delete the ';
     let text2: string | undefined;
-
     if (fc > 0 && dc > 0) {
       text += `selected folder${fc === 1 ? '' : 's'} and dashboard${dc === 1 ? '' : 's'}?`;
       text2 = `All dashboards of the selected folder${fc === 1 ? '' : 's'} will also be deleted`;
@@ -233,54 +308,36 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
     } else {
       text += `selected dashboard${dc === 1 ? '' : 's'}?`;
     }
-
     appEvents.emit('confirm-modal', {
-      title: 'Delete',
-      text,
-      text2,
-      icon: 'fa-trash',
-      yesText: 'Delete',
+      title: 'Delete', text, text2, icon: 'fa-trash', yesText: 'Delete',
       onConfirm: () => {
-        backendSrv.deleteFoldersAndDashboards(data.folders, data.dashboards).then(() => refreshList());
+        backendSrv.deleteFoldersAndDashboards(data.folders, data.dashboards)
+          .then(() => refreshList());
       },
     });
   };
 
   const handleMoveTo = () => {
-    const selectedDashboards: string[] = [];
-    for (const section of sections) {
-      const selected = section.items.filter(dashboardSelect as any);
-      selectedDashboards.push(...selected.map((i: any) => i.uid));
-    }
-
-    const template =
-      '<move-to-folder-modal dismiss="dismiss()" ' +
-      'dashboards="model.dashboards" after-save="model.afterSave()">' +
-      '</move-to-folder-modal>';
-
+    const selectedDashboards = sections.flatMap(s =>
+      s.items.filter(dashboardSelect).map((i: any) => i.uid)
+    );
     appEvents.emit('show-modal', {
-      templateHtml: template,
+      templateHtml:
+        '<move-to-folder-modal dismiss="dismiss()" dashboards="model.dashboards" ' +
+        'after-save="model.afterSave()"></move-to-folder-modal>',
       modalClass: 'modal--narrow',
-      model: {
-        dashboards: selectedDashboards,
-        afterSave: refreshList,
-      },
+      model: { dashboards: selectedDashboards, afterSave: refreshList },
     });
   };
 
-  const createDashboardUrl = () =>
-    folderId ? `dashboard/new?folderId=${folderId}` : 'dashboard/new';
-
-  const importDashboardUrl = () =>
-    folderId ? `dashboard/import?folderId=${folderId}` : 'dashboard/import';
-
+  const createDashboardUrl = () => folderId ? `dashboard/new?folderId=${folderId}` : 'dashboard/new';
+  const importDashboardUrl = () => folderId ? `dashboard/import?folderId=${folderId}` : 'dashboard/import';
   const showActionBar = !(folderId && !hasFilters && sections.length === 0);
 
-  // ── Render ──────────────────────────────────────────────────────────────────
+  // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <div className="dashboard-list">
 
-      {/* Top action bar */}
       {showActionBar && (
         <div className="page-action-bar page-action-bar--narrow">
           <label className="gf-form gf-form--grow gf-form--has-input-icon">
@@ -315,7 +372,6 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
         </div>
       )}
 
-      {/* Active filter bar */}
       {hasFilters && (
         <div className="page-action-bar page-action-bar--narrow">
           <div className="gf-form-inline">
@@ -325,9 +381,11 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
                 <div className="gf-form-input gf-form-input--plaintext">
                   {query.tag.map(tag => (
                     <a key={tag} onClick={e => removeTag(tag, e)} style={{ cursor: 'pointer' }}>
-                      <ColoredTag name={tag} className="tag">
-                        <i className="fa fa-remove" />&nbsp;{tag}
-                      </ColoredTag>
+                      {/* ColoredTag renders the name — prefix icon inline */}
+                      <span style={{ marginRight: 4 }}>
+                        <i className="fa fa-remove" />&nbsp;
+                        <ColoredTag name={tag} className="tag" />
+                      </span>
                     </a>
                   ))}
                 </div>
@@ -353,7 +411,6 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
         </div>
       )}
 
-      {/* Empty states */}
       {hasFilters && sections.length === 0 && (
         <div className="search-results">
           <em className="muted">No dashboards matching your query were found.</em>
@@ -365,7 +422,6 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
         </div>
       )}
 
-      {/* Results with filter row */}
       {sections.length > 0 && (
         <div className="search-results">
           <div className="search-results-filter-row">
@@ -385,7 +441,10 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
                     value={selectedTagFilter.term}
                     onChange={e => {
                       const opt = tagFilterOptions.find(o => o.term === e.target.value);
-                      if (opt && !opt.disabled) { onTagFilterChange(opt); }
+                      if (opt && !opt.disabled) {
+                        filterByTag(opt.term);
+                        setSelectedTagFilter(tagFilterOptions[0]);
+                      }
                     }}
                   >
                     {tagFilterOptions.map(o => (
@@ -401,7 +460,10 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
                     value={selectedStarredFilter.text}
                     onChange={e => {
                       const opt = starredFilterOptions.find(o => o.text === e.target.value);
-                      if (opt && !opt.disabled) { onStarredFilterChange(opt); }
+                      if (opt && !opt.disabled) {
+                        updateQuery({ starred: opt.text === 'Yes' });
+                        setSelectedStarredFilter(starredFilterOptions[0]);
+                      }
                     }}
                   >
                     {starredFilterOptions.map(o => (
@@ -413,19 +475,15 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
               {(canMove || canDelete) && (
                 <div className="gf-form-button-row">
                   <button
-                    type="button"
-                    className="btn gf-form-button btn-inverse"
-                    disabled={!canMove}
-                    onClick={handleMoveTo}
+                    type="button" className="btn gf-form-button btn-inverse"
+                    disabled={!canMove} onClick={handleMoveTo}
                     title={canMove ? '' : 'Select a dashboard to move (cannot move folders)'}
                   >
                     <i className="fa fa-exchange" />&nbsp;&nbsp;Move
                   </button>
                   <button
-                    type="button"
-                    className="btn gf-form-button btn-danger"
-                    disabled={!canDelete}
-                    onClick={handleDelete}
+                    type="button" className="btn gf-form-button btn-danger"
+                    disabled={!canDelete} onClick={handleDelete}
                   >
                     <i className="fa fa-trash" />&nbsp;&nbsp;Delete
                   </button>
@@ -436,7 +494,6 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
         </div>
       )}
 
-      {/* Search results list */}
       <div className="search-results-container">
         <SearchResults
           results={sections}
@@ -446,7 +503,6 @@ export const ManageDashboards: React.FC<ManageDashboardsProps> = ({
         />
       </div>
 
-      {/* Empty folder CTA */}
       {canSave && folderId && !hasFilters && sections.length === 0 && (
         <EmptyListCTA model={{
           title: "This folder doesn't have any dashboards yet",
