@@ -220,26 +220,8 @@ export const GraphLegendEditor: React.FC<GraphLegendEditorProps> = ({ ctrl }) =>
           checked={hideZero} onChange={toggle(setHideZero, 'hideZero', ctrl.render)} />
       </div>
 
-      {/* Drilldown/Link — stays Angular */}
-      <div className="section gf-form-group">
-        <h5 className="section-heading">Drilldown/Link</h5>
-        <div className="gf-form">
-          <gf-dashboard-link
-            dashboard={ctrl.panel.drilldown?.dashboard}
-            type={ctrl.panel.drilldown?.type}
-            link-name={ctrl.panel.drilldown?.linkName}
-            url={ctrl.panel.drilldown?.url}
-            keep-time={ctrl.panel.drilldown?.keepTime}
-            include-vars={ctrl.panel.drilldown?.includeVars}
-            target-blank={ctrl.panel.drilldown?.targetBlank}
-            report={ctrl.panel.drilldown?.report}
-            plugin="graph-chart"
-            var-name={ctrl.panel.drilldown?.varName}
-            params={ctrl.panel.drilldown?.params}
-            on-change="ctrl.refresh()"
-          />
-        </div>
-      </div>
+      {/* Drilldown/Link section: gf-dashboard-link is still an Angular directive.
+          It is rendered by tab_legend.html via a separate <div> after this component. */}
     </div>
   );
 };

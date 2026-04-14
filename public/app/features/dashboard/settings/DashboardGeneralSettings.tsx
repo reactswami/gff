@@ -142,13 +142,13 @@ export const DashboardGeneralSettings: React.FC<DashboardGeneralSettingsProps> =
           />
         </div>
 
-        {/* Folder picker — left as Angular directive, wired via ng-react bridge */}
-        {/* folder-picker is still Angular; this slot keeps it working */}
-        <div
-          className="gf-form"
-          // The folder-picker Angular directive renders here via the parent
-          // Angular template which still includes the <folder-picker> tag.
-          // This component does NOT render folder-picker itself.
+        {/* FolderPicker — now fully React */}
+        <FolderPicker
+          initialTitle={initialFolderTitle ?? dashboard.meta.folderTitle}
+          initialFolderId={initialFolderId ?? dashboard.meta.folderId}
+          labelClass="width-7"
+          enableCreateNew="true"
+          onChange={folder => onFolderChange?.(folder)}
         />
 
         {/* Editable toggle — gf-form-switch → GfFormSwitch */}

@@ -207,11 +207,8 @@ export const MetricsTabOptions: React.FC<MetricsTabOptionsProps> = ({ ctrl }) =>
           </div>
         )}
 
-        {/* query-troubleshooter stays Angular — registered separately */}
-        <query-troubleshooter
-          panel-ctrl="ctrl.panelCtrl"
-          is-open={troubleshooterOpen}
-        />
+        {/* query-troubleshooter is an Angular directive — rendered by the parent
+            Angular template (metrics_tab.html) outside this React component */}
       </div>
     </div>
   );
