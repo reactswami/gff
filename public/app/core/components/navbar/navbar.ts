@@ -1,4 +1,3 @@
-import coreModule from '../../core_module';
 import { NavModel } from '../../nav_model_srv';
 import appEvents from 'app/core/app_events';
 
@@ -50,5 +49,7 @@ export function pageH1() {
   };
 }
 
-coreModule.directive('pageH1', pageH1);
-coreModule.directive('navbar', navbarDirective);
+// Replaced by PageH1.tsx registered in angular_wrappers.ts
+// coreModule.directive('pageH1', pageH1);
+// Replaced by Navbar.tsx registered in angular_wrappers.ts
+// coreModule.directive('navbar', navbarDirective);

@@ -15,6 +15,8 @@ import { PanelTimeOverride } from '../features/panel/PanelTimeOverride';
 import { MetricsTabOptions } from '../features/panel/MetricsTabOptions';
 import { GraphLegendEditor } from '../plugins/panel/graph/GraphLegendEditor';
 import { FolderPicker } from '../features/dashboard/folder_picker/FolderPicker';
+import { Navbar } from './components/navbar/Navbar';
+import { PageH1 } from './components/navbar/PageH1';
 
 export function registerAngularDirectives() {
   react2AngularDirective('pageHeader', PageHeader, ['model', 'noTabs']);
@@ -112,6 +114,17 @@ export function registerAngularDirectives() {
     ['onChange', { watchDepth: 'reference' }],
     ['enableCreateNew', { watchDepth: 'one-time' }],
     ['enableReset', { watchDepth: 'one-time' }],
+  ]);
+
+  // Navbar — replaces navbar Angular directive + navbar.html (breadcrumb rendering).
+  // dashboard-search stays Angular, kept in navbar.html after the React component tag.
+  react2AngularDirective('navbar', Navbar, [
+    ['model', { watchDepth: 'reference' }],
+  ]);
+
+  // PageH1 — replaces pageH1 Angular directive (page header title with icon/img).
+  react2AngularDirective('pageH1', PageH1, [
+    ['model', { watchDepth: 'reference' }],
   ]);
 
   // DashLinksEditor — replaces dash-links-editor directive + dashlinks/editor.html

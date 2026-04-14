@@ -43,7 +43,6 @@ import { formDropdownDirective } from './components/form_dropdown/form_dropdown'
 import { geminiScrollbar } from './components/scroll/scroll';
 import { gfPageDirective } from './components/gf_page';
 import { linkDirective } from './components/link';
-import { navbarDirective } from './components/navbar/navbar';
 import { pageScrollbar } from './components/scroll/page_scroll';
 import { profiler } from './profiler';
 import { queryPartEditorDirective } from './components/query_part/query_part_editor';
@@ -58,7 +57,6 @@ export {
   registerAngularDirectives,
   arrayJoin,
   coreModule,
-  navbarDirective,
   searchDirective,
   switchDirective,
   linkDirective,
