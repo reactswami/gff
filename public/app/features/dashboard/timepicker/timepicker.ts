@@ -346,7 +346,8 @@ export function timePickerDirective() {
   };
 }
 
-angular.module('grafana.directives').directive('gfTimePickerSettings', settingsDirective);
+// Replaced by TimepickerSettings.tsx registered in angular_wrappers.ts
+// angular.module('grafana.directives').directive('gfTimePickerSettings', settingsDirective);
 angular.module('grafana.directives').directive('gfTimePicker', timePickerDirective);
 
 import { inputDateDirective } from './input_date';

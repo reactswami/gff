@@ -78,4 +78,5 @@ function dashLinksEditor() {
   };
 }
 
-angular.module('grafana.directives').directive('dashLinksEditor', dashLinksEditor);
+// Replaced by DashLinksEditor.tsx registered in angular_wrappers.ts
+// angular.module('grafana.directives').directive('dashLinksEditor', dashLinksEditor);

@@ -51,4 +51,5 @@ export function switchDirective() {
   };
 }
 
-coreModule.directive('gfFormSwitch', switchDirective);
+// Replaced by GfFormSwitch.tsx registered in angular_wrappers.ts
+// coreModule.directive('gfFormSwitch', switchDirective);
