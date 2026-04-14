@@ -25,20 +25,13 @@
 </aside>
 
 <div class="dashboard-settings__content" ng-if="ctrl.viewId === 'settings'">
-	<!-- General settings migrated to React (DashboardGeneralSettings.tsx).
-	     folder-picker kept as Angular until FolderPicker.tsx is built. -->
+	<!-- General settings fully migrated to React (DashboardGeneralSettings.tsx + FolderPicker.tsx) -->
 	<dashboard-general-settings
 		dashboard="ctrl.dashboard"
-		on-folder-change="ctrl.onFolderChange($folder)">
+		on-folder-change="ctrl.onFolderChange($folder)"
+		initial-folder-title="ctrl.dashboard.meta.folderTitle"
+		initial-folder-id="ctrl.dashboard.meta.folderId">
 	</dashboard-general-settings>
-	<folder-picker
-		initial-title="ctrl.dashboard.meta.folderTitle"
-		initial-folder-id="ctrl.dashboard.meta.folderId"
-		on-change="ctrl.onFolderChange($folder)"
-		enable-create-new="true"
-		is-valid-selection="true"
-		label-class="width-7">
-	</folder-picker>
 </div>
 
 <div class="dashboard-settings__content" ng-if="ctrl.viewId === 'templating'"  ng-include="'public/app/features/templating/partials/editor.html'">

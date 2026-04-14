@@ -22,6 +22,7 @@ import { TagsInput } from 'app/core/components/TagsDirectives';
 import { GfFormSwitch } from 'app/core/components/Switch/GfFormSwitch';
 import { TimepickerSettings } from 'app/features/dashboard/timepicker/TimepickerSettings';
 import { InfoPopover } from 'app/core/components/InfoPopover';
+import { FolderPicker } from 'app/features/dashboard/folder_picker/FolderPicker';
 
 interface DashboardMeta {
   folderTitle?: string;
@@ -42,6 +43,8 @@ interface DashboardModel {
 interface DashboardGeneralSettingsProps {
   dashboard: DashboardModel;
   onFolderChange?: (folder: any) => void;
+  initialFolderTitle?: string;
+  initialFolderId?: number | null;
 }
 
 const GRAPH_TOOLTIP_OPTIONS = [
@@ -53,6 +56,8 @@ const GRAPH_TOOLTIP_OPTIONS = [
 export const DashboardGeneralSettings: React.FC<DashboardGeneralSettingsProps> = ({
   dashboard,
   onFolderChange,
+  initialFolderTitle,
+  initialFolderId,
 }) => {
   const [title, setTitle] = useState(dashboard.title);
   const [description, setDescription] = useState(dashboard.description);

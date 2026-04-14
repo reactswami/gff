@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import coreModule from 'app/core/core_module';
 import appEvents from 'app/core/app_events';
 
 export class FolderPickerCtrl {
@@ -184,4 +183,5 @@ export function folderPicker() {
   };
 }
 
-coreModule.directive('folderPicker', folderPicker);
+// Replaced by FolderPicker.tsx registered in angular_wrappers.ts
+// coreModule.directive('folderPicker', folderPicker);

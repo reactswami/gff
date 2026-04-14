@@ -12,6 +12,9 @@ import { DashLinksEditor } from '../features/dashboard/dashlinks/DashLinksEditor
 import { InfoPopover } from './components/InfoPopover';
 import { DashboardGeneralSettings } from '../features/dashboard/settings/DashboardGeneralSettings';
 import { PanelTimeOverride } from '../features/panel/PanelTimeOverride';
+import { MetricsTabOptions } from '../features/panel/MetricsTabOptions';
+import { GraphLegendEditor } from '../plugins/panel/graph/GraphLegendEditor';
+import { FolderPicker } from '../features/dashboard/folder_picker/FolderPicker';
 
 export function registerAngularDirectives() {
   react2AngularDirective('pageHeader', PageHeader, ['model', 'noTabs']);
@@ -87,6 +90,28 @@ export function registerAngularDirectives() {
   react2AngularDirective('panelTimeOverride', PanelTimeOverride, [
     ['panel', { watchDepth: 'reference' }],
     ['onChange', { watchDepth: 'reference' }],
+  ]);
+
+  // MetricsTabOptions — replaces the options/help/inspector bottom section of
+  // panel/partials/metrics_tab.html. Only the options rows, not the query editors.
+  react2AngularDirective('metricsTabOptions', MetricsTabOptions, [
+    ['ctrl', { watchDepth: 'reference' }],
+  ]);
+
+  // GraphLegendEditor — replaces plugins/panel/graph/tab_legend.html entirely.
+  react2AngularDirective('graphLegendEditor', GraphLegendEditor, [
+    ['ctrl', { watchDepth: 'reference' }],
+  ]);
+
+  // FolderPicker — replaces folder_picker Angular directive + folder_picker.html.
+  // Used in dashboard settings, dashboard import, and move-to-folder modal.
+  react2AngularDirective('folderPicker', FolderPicker, [
+    ['initialTitle', { watchDepth: 'one-time' }],
+    'initialFolderId',
+    ['labelClass', { watchDepth: 'one-time' }],
+    ['onChange', { watchDepth: 'reference' }],
+    ['enableCreateNew', { watchDepth: 'one-time' }],
+    ['enableReset', { watchDepth: 'one-time' }],
   ]);
 
   // DashLinksEditor — replaces dash-links-editor directive + dashlinks/editor.html
