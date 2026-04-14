@@ -1,4 +1,3 @@
-import coreModule from 'app/core/core_module';
 
 export class ThresholdFormCtrl {
   panelCtrl: any;
@@ -63,7 +62,8 @@ export class ThresholdFormCtrl {
   }
 }
 
-coreModule.directive('graphThresholdForm', () => {
+// Replaced by GraphThresholdForm.tsx registered in angular_wrappers.ts
+// coreModule.directive('graphThresholdForm', () => {
   return {
     restrict: 'E',
     templateUrl: 'public/app/plugins/panel/graph/thresholds_form.html',

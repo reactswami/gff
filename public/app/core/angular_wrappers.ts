@@ -14,6 +14,7 @@ import { DashboardGeneralSettings } from '../features/dashboard/settings/Dashboa
 import { PanelTimeOverride } from '../features/panel/PanelTimeOverride';
 import { MetricsTabOptions } from '../features/panel/MetricsTabOptions';
 import { GraphLegendEditor } from '../plugins/panel/graph/GraphLegendEditor';
+import { GraphThresholdForm } from '../plugins/panel/graph/GraphThresholdForm';
 import { FolderPicker } from '../features/dashboard/folder_picker/FolderPicker';
 import { Navbar } from './components/navbar/Navbar';
 import { PageH1 } from './components/navbar/PageH1';
@@ -102,6 +103,12 @@ export function registerAngularDirectives() {
 
   // GraphLegendEditor — replaces plugins/panel/graph/tab_legend.html entirely.
   react2AngularDirective('graphLegendEditor', GraphLegendEditor, [
+    ['ctrl', { watchDepth: 'reference' }],
+  ]);
+
+  // GraphThresholdForm — replaces plugins/panel/graph/thresholds_form.html
+  // gf-form-switch (Fill/Line toggles) converted; color-picker stays Angular in .html.
+  react2AngularDirective('graphThresholdForm', GraphThresholdForm, [
     ['ctrl', { watchDepth: 'reference' }],
   ]);
 
