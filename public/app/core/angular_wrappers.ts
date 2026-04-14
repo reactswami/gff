@@ -51,10 +51,10 @@ export function registerAngularDirectives() {
   // All existing HTML templates continue to work unchanged.
   react2AngularDirective('gfFormSwitch', GfFormSwitch, [
     'checked',
-    'label',
-    'labelClass',
-    'switchClass',
-    'tooltip',
+    ['label', { watchDepth: 'one-time' }],
+    ['labelClass', { watchDepth: 'one-time' }],
+    ['switchClass', { watchDepth: 'one-time' }],
+    ['tooltip', { watchDepth: 'one-time' }],
     ['onChange', { watchDepth: 'reference' }],
   ]);
 
@@ -72,7 +72,7 @@ export function registerAngularDirectives() {
   // InfoPopover — replaces info-popover Angular directive (46 usage sites).
   // All existing HTML templates continue to work via this registration.
   react2AngularDirective('infoPopover', InfoPopover, [
-    'mode',
+    ['mode', { watchDepth: 'one-time' }],
   ]);
 
   // DashboardGeneralSettings — replaces the 'settings' viewId section of

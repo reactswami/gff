@@ -120,7 +120,13 @@ function watchProps(watchDepth, scope, watchExpressions, listener) {
     } else if (exprWatchDepth === 'one-time') {
       //do nothing because we handle our one time bindings after this
     } else {
-      scope.$watch(actualExpr, listener, exprWatchDepth !== 'reference');
+      // Guard against plain string literals (e.g. label="Include time range") being
+      // passed as watch expressions — $parse will throw a syntax error on them.
+      try {
+        scope.$watch(actualExpr, listener, exprWatchDepth !== 'reference');
+      } catch (e) {
+        // Not a valid Angular expression — it's a static string literal, skip watching.
+      }
     }
   });
 
@@ -262,7 +268,16 @@ const reactDirective = $injector => {
 
           props.forEach(prop => {
             const propName = getPropName(prop);
-            scopeProps[propName] = scope.$eval(findAttribute(attrs, propName));
+            const attrValue = findAttribute(attrs, propName);
+            // If the attribute value is a plain string (not an Angular expression),
+            // scope.$eval will throw a $parse:syntax error. Fall back to the raw
+            // attribute string in that case — this handles props like label="Include time range"
+            // where the value is a literal, not a scope expression.
+            try {
+              scopeProps[propName] = scope.$eval(attrValue);
+            } catch (e) {
+              scopeProps[propName] = attrValue;
+            }
             config[propName] = getPropConfig(prop);
           });
 
