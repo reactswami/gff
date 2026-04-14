@@ -49,11 +49,12 @@ export class GfFormSwitch extends PureComponent<GfFormSwitchProps, State> {
   };
 
   handleChange = () => {
-    // Mirror the Angular directive's $timeout wrapper — defer so the checked
-    // binding has been updated before the parent handler fires.
-    setTimeout(() => {
-      this.props.onChange();
-    }, 0);
+    // Call onChange synchronously — no setTimeout wrapper needed.
+    // The original Angular directive used $timeout to defer past the $digest cycle,
+    // but React's synthetic onChange fires after event handling is complete.
+    // Using setTimeout(0) here causes the callback to run OUTSIDE Angular's digest,
+    // which makes ctrl.render()/refresh() call $apply on a nested digest → infdig loop.
+    this.props.onChange();
   };
 
   render() {
