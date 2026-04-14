@@ -257,6 +257,7 @@ const reactDirective = $injector => {
       replace: true,
       link: function(scope, elem, attrs) {
         const reactComponent = getReactComponent(reactComponentName, $injector);
+        const $parse = $injector.get('$parse');
 
         // if props is not defined, fall back to use the React component's propTypes if present
         props = props || Object.keys(reactComponent.propTypes || {});
@@ -269,16 +270,44 @@ const reactDirective = $injector => {
           props.forEach(prop => {
             const propName = getPropName(prop);
             const attrValue = findAttribute(attrs, propName);
-            // If the attribute value is a plain string (not an Angular expression),
-            // scope.$eval will throw a $parse:syntax error. Fall back to the raw
-            // attribute string in that case — this handles props like label="Include time range"
-            // where the value is a literal, not a scope expression.
-            try {
-              scopeProps[propName] = scope.$eval(attrValue);
-            } catch (e) {
-              scopeProps[propName] = attrValue;
+            const propConfig = getPropConfig(prop);
+            config[propName] = propConfig;
+
+            if (!attrValue) {
+              scopeProps[propName] = undefined;
+              return;
             }
-            config[propName] = getPropConfig(prop);
+
+            // For callback expression props (e.g. on-change="ctrl.refresh()"),
+            // scope.$eval("ctrl.refresh()") would INVOKE the function immediately on
+            // every digest cycle, causing infdig loops. Instead, use $parse to get a
+            // callable wrapper that Angular can invoke later via applyFunctions.
+            // Heuristic: if the expression contains '(' it is a call expression.
+            const isCallExpression = attrValue.includes('(');
+
+            if (isCallExpression) {
+              try {
+                const parsed = $parse(attrValue);
+                // Only treat as function if $parse gives us an invokable
+                if (angular.isFunction(parsed)) {
+                  scopeProps[propName] = function() { return parsed(scope, arguments[0]); };
+                } else {
+                  // Fall back to $eval for non-function parsed results
+                  try { scopeProps[propName] = scope.$eval(attrValue); }
+                  catch (e) { scopeProps[propName] = attrValue; }
+                }
+              } catch (e) {
+                try { scopeProps[propName] = scope.$eval(attrValue); }
+                catch (e2) { scopeProps[propName] = attrValue; }
+              }
+            } else {
+              // Plain value props — use $eval with fallback to raw string for literals
+              try {
+                scopeProps[propName] = scope.$eval(attrValue);
+              } catch (e) {
+                scopeProps[propName] = attrValue;
+              }
+            }
           });
 
           scopeProps = applyFunctions(scopeProps, scope, config);
