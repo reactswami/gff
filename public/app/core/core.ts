@@ -44,15 +44,12 @@ import { geminiScrollbar } from './components/scroll/scroll';
 import { gfPageDirective } from './components/gf_page';
 import { infoPopover } from './components/info_popover';
 import { linkDirective } from './components/link';
-import { manageDashboardsDirective } from './components/manage_dashboards/manage_dashboards';
-import { manageTemplatesDirective } from './components/manage_templates/manage_templates';
 import { navbarDirective } from './components/navbar/navbar';
 import { pageScrollbar } from './components/scroll/page_scroll';
 import { profiler } from './profiler';
 import { queryPartEditorDirective } from './components/query_part/query_part_editor';
 import { registerAngularDirectives } from './angular_wrappers';
 import { searchDirective } from './components/search/search';
-import { searchResultsDirective } from './components/search/search_results';
 import { sqlPartEditorDirective } from './components/sql_part/sql_part_editor';
 import { switchDirective } from './components/switch';
 import { updateLegendValues } from './time_series2';
@@ -83,10 +80,7 @@ export {
   geminiScrollbar,
   pageScrollbar,
   gfPageDirective,
-  manageDashboardsDirective,
-  manageTemplatesDirective,
   TimeSeries,
   updateLegendValues,
-  searchResultsDirective,
   Legend,
 };

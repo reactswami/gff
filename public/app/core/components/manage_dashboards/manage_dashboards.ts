@@ -332,4 +332,5 @@ export function manageDashboardsDirective() {
   };
 }
 
-coreModule.directive('manageDashboards', manageDashboardsDirective);
+// Replaced by React component registered in angular_wrappers.ts
+// coreModule.directive('manageDashboards', manageDashboardsDirective);

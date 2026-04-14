@@ -623,4 +623,5 @@ export function manageTemplatesDirective() {
   };
 }
 
-coreModule.directive('manageTemplates', manageTemplatesDirective);
+// Replaced by React component registered in angular_wrappers.ts
+// coreModule.directive('manageTemplates', manageTemplatesDirective);
