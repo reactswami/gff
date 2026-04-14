@@ -146,7 +146,7 @@ export const ValueSelectDropdown: React.FC<ValueSelectDropdownProps> = ({
   // ── Body click dismissal ───────────────────────────────────────────────────
   useEffect(() => {
     if (!open) {
-      return;
+      return undefined;
     }
     const handler = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {

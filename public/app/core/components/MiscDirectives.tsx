@@ -54,7 +54,7 @@
 //   Not used directly in any HTML template — consumed only by DropdownTypeahead.
 //   Replaced by the GfDropdownMenu component in DropdownTypeahead.tsx.
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Clipboard from 'clipboard';
 import { appEvents } from 'app/core/core';
 
@@ -105,7 +105,7 @@ export const ClipboardButton: React.FC<ClipboardButtonProps> = ({
 
   useEffect(() => {
     if (!buttonRef.current) {
-      return;
+      return undefined;
     }
     clipboardRef.current = new Clipboard(buttonRef.current, {
       text: () => getText(),

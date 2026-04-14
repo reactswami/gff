@@ -35,7 +35,7 @@ export function useFocus<T extends HTMLElement>(condition: boolean) {
 
   useEffect(() => {
     if (!condition || !ref.current) {
-      return;
+      return undefined;
     }
     const el = ref.current;
     // Mirrors the 200ms delay in the original directive

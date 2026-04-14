@@ -155,7 +155,7 @@ export const DropdownTypeahead: React.FC<DropdownTypeaheadProps> = ({
   // Close on outside click
   useEffect(() => {
     if (!open) {
-      return;
+      return undefined;
     }
     const handler = (e: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
