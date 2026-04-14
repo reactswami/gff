@@ -1,0 +1,126 @@
+<div class="edit-tab-with-sidemenu">
+  <aside class="edit-sidemenu-aside">
+    <ul class="edit-sidemenu">
+      <li ng-repeat="style in editor.panel.styles" ng-class="{active: editor.activeStyleIndex === $index}">
+        <a ng-click="editor.activeStyleIndex = $index">{{style.pattern || 'New rule'}}</a>
+      </li>
+      <li>
+        <a class="pointer" ng-click="editor.addColumnStyle()">
+          <i class="fa fa-plus"></i>&nbsp;Add
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <div class="edit-tab-content" ng-repeat="style in editor.panel.styles" ng-if="editor.activeStyleIndex === $index">
+
+    <div class="section gf-form-group">
+      <h5 class="section-heading">Options</h5>
+      <div class="gf-form-inline">
+        <div class="gf-form">
+          <label class="gf-form-label width-13">Apply to columns named</label>
+          <input type="text" placeholder="Name or regex" class="gf-form-input width-13" ng-model="style.pattern" bs-tooltip="'Specify regex using /my.*regex/ syntax'"
+            bs-typeahead="editor.getColumnNames" ng-blur="editor.render()" data-min-length=0 data-items=100 ng-model-onblur
+            data-placement="right">
+        </div>
+      </div>
+      <div class="gf-form" ng-if="style.type !== 'hidden'">
+        <label class="gf-form-label width-13">Column Header</label>
+        <input type="text" class="gf-form-input width-13" ng-model="style.alias" ng-change="editor.render()" ng-model-onblur placeholder="Override header label">
+      </div>
+      <gf-form-switch class="gf-form" label-class="width-13" label="Render value as link" checked="style.link" on-change="editor.render(style)"></gf-form-switch>
+    </div>
+
+    <div class="section gf-form-group">
+      <h5 class="section-heading">Type</h5>
+
+      <div class="gf-form">
+        <label class="gf-form-label width-11">Type</label>
+        <div class="gf-form-select-wrapper width-16">
+          <select class="gf-form-input" ng-model="style.type" ng-options="c.value as c.text for c in editor.columnTypes" ng-change="editor.onTypeChange(style)"></select>
+        </div>
+      </div>
+      <div class="gf-form" ng-if="style.type === 'date'">
+        <label class="gf-form-label width-11">Date Format</label>
+        <gf-form-dropdown model="style.dateFormat" css-class="gf-form-input width-16" lookup-text="true"
+        	get-options="editor.dateFormats" on-change="editor.render()" allow-custom="true">
+        </gf-form-dropdown>
+      </div>
+
+      <div ng-if="style.type === 'string'">
+        <gf-form-switch class="gf-form" label-class="width-11" ng-if="style.type === 'string'" label="Sanitize HTML" checked="style.sanitize"
+          change="editor.render()"></gf-form-switch>
+      </div>
+      <div ng-if="style.type === 'string'">
+        <gf-form-switch class="gf-form" label-class="width-11" ng-if="style.type === 'string'" label="Preserve Formatting" checked="style.preserveFormat"
+          change="editor.render()"></gf-form-switch>
+      </div>
+
+      <div ng-if="style.type === 'number'">
+        <div class="gf-form">
+          <label class="gf-form-label width-11">Unit</label>
+          <div class="gf-form-dropdown-typeahead width-16" ng-model="style.unit" dropdown-typeahead2="editor.unitFormats" dropdown-typeahead-on-select="editor.setUnitFormat(style, $subItem)"></div>
+        </div>
+        <div class="gf-form">
+          <label class="gf-form-label width-11">Decimals</label>
+          <input type="number" class="gf-form-input width-4" data-placement="right" ng-model="style.decimals" ng-change="editor.render()"
+            ng-model-onblur>
+        </div>
+      </div>
+    </div>
+
+    <div class="section gf-form-group" ng-if="['number', 'string'].indexOf(style.type) !== -1">
+      <h5 class="section-heading">Coloring</h5>
+      <div class="gf-form-group">
+        <div class="gf-form" ng-repeat="c in style.coloring">
+          <span class="gf-form-label">
+            <i class="fa fa-remove pointer" ng-click="editor.removeColoring(style, $index)"></i>
+          </span>
+          <select class="gf-form-input width-8" ng-model="c.type" ng-options="t.value as t.text for t in editor.coloringTypes" ng-change="editor.render()"></select>
+
+          <!-- Range -->
+          <span  ng-if="c.type === 'range'" class="gf-form-label">From<info-popover mode="right-normal">Leave blank for no lower limit</info-popover></span>
+          <input ng-if="c.type === 'range'" type="text" ng-model="c.from" class="gf-form-input max-width-6" ng-blur="editor.render()">
+          <span  ng-if="c.type === 'range'" class="gf-form-label">To<info-popover mode="right-normal">Leave blank for no upper limit</info-popover></span>
+          <input ng-if="c.type === 'range'" type="text" ng-model="c.to" class="gf-form-input max-width-6" ng-blur="editor.render()">
+
+          <!-- Value Map -->
+          <input ng-if="c.type === 'valuemap'" type="text" class="gf-form-input max-width-6" ng-model="c.from" placeholder="Value" ng-blur="editor.render()">
+          <label ng-if="c.type === 'valuemap'" class="gf-form-label">
+            <i class="fa fa-arrow-right"></i>
+          </label>
+
+          <input ng-if="style.type === 'string'" type="text" class="gf-form-input max-width-11" ng-model="c.text" placeholder="{{c.type === 'regex' ? 'Regex' : 'Text'}}" ng-blur="editor.render()">
+          <span class="gf-form-label">
+            <color-picker color="c.color" onChange="editor.onColorChange(c)"></color-picker>
+          </span>
+          <select class="gf-form-input width-9" ng-model="c.mode" ng-options="c.value as c.text for c in editor.colorModes" ng-change="editor.render()"></select>
+        </div>
+        <div class="gf-form">
+          <label class="gf-form-label">
+            <a class="pointer" ng-click="editor.addColoring(style)"><i class="fa fa-plus"></i></a>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section gf-form-group" ng-if="style.link">
+      <h5 class="section-heading">Link</h5>
+      <gf-dashboard-link dashboard="style.dashboard"
+            type="style.linkType"
+            plugin="table"
+            url="style.linkUrl" keep-time="style.keepTime" include-vars="style.includeVars"
+            on-dashboard-change="style.params=''"
+            report="style.report" target-blank="style.linkTargetBlank" params="style.params" link-name="style.linkTooltip" on-change="editor.render()">
+      </gf-dashboard-link>
+    </div>
+
+    <div class="clearfix"></div>
+
+    <button class="btn btn-danger btn-small" ng-click="editor.removeColumnStyle(style)">
+      <i class="fa fa-trash"></i> Remove Rule
+    </button>
+    <br />
+    <br />
+
+  </div>

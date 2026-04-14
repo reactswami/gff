@@ -1,0 +1,48 @@
+.navbar-buttons--zoom {
+  display: none;
+}
+
+.gf-timepicker-nav-btn {
+  max-width: 120px;
+}
+
+.navbar-buttons--tv,
+.navbar-buttons--actions {
+  display: none;
+}
+
+// Media queries
+// ---------------------
+
+@include media-breakpoint-down(xs) {
+  input[type='text'],
+  input[type='number'],
+  textarea {
+    font-size: 16px;
+  }
+}
+
+@include media-breakpoint-up(sm) {
+  .gf-timepicker-nav-btn {
+    max-width: 200px;
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .navbar-buttons--tv,
+  .navbar-buttons--actions {
+    display: flex;
+  }
+ .gf-timepicker-nav-btn {
+    max-width: 240px;
+  }
+}
+
+@include media-breakpoint-up(lg) {
+  .navbar-buttons--zoom {
+    display: flex;
+  }
+  .gf-timepicker-nav-btn {
+    max-width: none;
+  }
+}

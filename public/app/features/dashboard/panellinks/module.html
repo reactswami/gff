@@ -1,0 +1,25 @@
+<div class="editor-row">
+	<h5 class="section-heading">
+		Drilldown / detail link<tip>These links appear in the dropdown menu in the panel menu. </tip></h5>
+	</h5>
+
+	<div class="gf-form-group" ng-repeat="link in panel.links">
+      <div class="section">
+         <gf-dashboard-link dashboard="link.dashboard"
+               type="link.type" link-name="link.title" url="link.url" keep-time="link.keepTime" include-vars="link.includeVars"
+               target-blank="link.targetBlank" params="link.params"
+               on-dashboard-change="link.params=''"
+               report="link.report">
+         </gf-dashboard-link>
+      </div>
+		<div class="section">
+			<div class="gf-form">
+				<button class="btn btn-inverse gf-form-btn" ng-click="deleteLink(link)"><i class="fa fa-trash"></i> Remove Link</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="editor-row">
+	<button class="btn btn-inverse" ng-click="addLink()"><i class="fa fa-plus"></i> Add link</button>
+</div>

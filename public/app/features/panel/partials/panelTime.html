@@ -1,0 +1,127 @@
+<div class="gf-form-group">
+	<div class="gf-form">
+		<span class="gf-form-label">
+			<i class="fa fa-clock-o"></i>
+		</span>
+
+		<span class="gf-form-label width-12">Timefilter Override</span>
+      <div id="timerange" style="position: relative;z-index: 1;">
+         <div class="gf-timerangepicker-dropdown" ng-show="ctrl.showModal">
+            <div>
+               <span class="close" ng-click="ctrl.closeTimeRangePicker()">&times;</span>
+               <form name="timeForm" class="gf-timepicker-absolute-section">
+                  <h3 class="section-heading">Custom range</h3>
+
+                  <label class="small">From:</label>
+                  <div class="gf-form-inline">
+                     <div class="gf-form max-width-28">
+                     <input type="text" class="gf-form-input input-large" value="{{ctrl.name}}" ng-model="ctrl.editTimeCache.from" input-datetime >
+                     </div>
+                     <div class="gf-form">
+                     <button class="btn gf-form-btn btn-primary" type="button" ng-click="ctrl.showPickerFrom()">
+                        <i class="fa fa-calendar"></i>
+                     </button>
+                     </div>
+                  </div>
+
+                  <div ng-if="ctrl.openFromPicker" style="position: relative;">
+                     <datepicker ng-model="ctrl.absolute.fromJs" class="gf-timepicker-component" show-weeks="false" starting-day="ctrl.firstDayOfWeek" ng-change="ctrl.absoluteFromChanged()"></datepicker>
+                  </div>
+
+                  <label class="small">To:</label>
+                  <div class="gf-form-inline">
+                     <div class="gf-form max-width-28">
+                     <input type="text" class="gf-form-input input-large" ng-model="ctrl.editTimeCache.to" input-datetime >
+                     </div>
+                     <div class="gf-form">
+                     <button id="foo" class="btn gf-form-btn btn-primary" type="button" ng-click="ctrl.showPickerTo()">
+                        <i class="fa fa-calendar"></i>
+                     </button>
+                     </div>
+                  </div>
+
+                  <div ng-if="ctrl.openToPicker">
+                     <datepicker ng-model="ctrl.absolute.toJs" class="gf-timepicker-component" show-weeks="false" starting-day="ctrl.firstDayOfWeek" ng-change="ctrl.absoluteToChanged()"></datepicker>
+                  </div>
+
+                  <label class="small">Weekday:</label>
+                  <div class="gf-form-inline">
+                     <label class="gf-form-label" style="height: 100%"> From </label>
+                     <div class="gf-form max-width-6">
+                     <select ng-model="ctrl.editTimeCache.parsedFilters.fromDay" class="gf-form-input input-medium" ng-options="f.value as f.text for f in ctrl.weekdayOptions" ng-change="ctrl.updateFilter()"></select>
+                     </div>
+                     <label class="gf-form-label" style="height: 100%; margin-left: 6px"> to </label>
+                     <div class="gf-form max-width-6">
+                     <select ng-model="ctrl.editTimeCache.parsedFilters.toDay" class="gf-form-input input-medium" ng-options="f.value as f.text for f in ctrl.weekdayOptions" ng-change="ctrl.updateFilter()"></select>
+                     </div>
+                  </div>
+
+                  <label class="small">Time:</label>
+                  <div class="gf-form-inline">
+                     <label class="gf-form-label" style="height: 100%"> From </label>
+                     <div class="gf-form max-width-8">
+                     <select ng-model="ctrl.editTimeCache.parsedFilters.fromDayTime" class="gf-form-input input-medium" ng-options="f.value as f.text for f in ctrl.dayTimeOptions" ng-change="ctrl.updateFilter()"></select>
+                     </div>
+                     <label class="gf-form-label" style="height: 100%; margin-left: 6px"> to </label>
+                     <div class="gf-form max-width-8">
+                     <select ng-model="ctrl.editTimeCache.parsedFilters.toDayTime" class="gf-form-input input-medium" ng-options="f.value as f.text for f in ctrl.dayTimeOptions" ng-change="ctrl.updateFilter()"></select>
+                     </div>
+                  </div>
+
+                  <label class="small">Filter Summary:</label>
+                  <div class="gf-form-inline">
+                     <div class="gf-form max-width-28">
+                        <input type="text" readOnly=true class="gf-form-input input-large" ng-model="ctrl.tfFilterString" input-datetime>
+                     </div>
+                  </div>
+                  <div class="gf-form-inline gf-apply-button">
+                     <button type="submit" id="apply_override_time" class="btn gf-form-btn btn-secondary" ng-click="ctrl.applyCustom();" ng-disabled="!timeForm.$valid">Apply</button>
+                  </div>
+               </form>
+               <div class="gf-timepicker-relative-section">
+                  <h3 class="section-heading">Quick ranges</h3>
+                  <ul ng-repeat="group in ctrl.timeOptions">
+                    <li bindonce ng-repeat='option in group' ng-class="{active: option.active}">
+                      <a ng-click="ctrl.setRelativeFilter(option)" bo-text="option.display"></a>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+         </div>
+	</div>
+   <a bs-tooltip="ctrl.tooltip" data-placement="bottom" ng-click="ctrl.openTimeRangePicker()" class="gf-form-label">
+      <i class="fa fa-clock-o"></i>
+      <span ng-show="!ctrl.panel.overrideTimeRange" style="font-style: italic;">Click to override</span>
+      <span ng-bind="ctrl.rangeString"></span>
+      <span ng-show="ctrl.isUtc" class="gf-timepicker-utc">UTC</span>
+   </a>
+   <label class="gf-form-label_time_range">
+      <a class="fa fa-trash pointer" ng-click="ctrl.onReset()" title="Delete"></a>
+    </label>
+  </div>
+
+	<div class="gf-form">
+		<span class="gf-form-label">
+			<i class="fa fa-clock-o"></i>
+		</span>
+		<span class="gf-form-label width-12">Add time shift</span>
+		<span class="gf-form-label width-6">Amount</span>
+		<input type="text" class="gf-form-input max-width-8" placeholder="1h"
+			empty-to-null ng-model="ctrl.panel.timeShift" valid-time-span
+			ng-change="ctrl.refresh()" ng-model-onblur></input>
+	</div>
+
+	<div class="gf-form-inline">
+		<div class="gf-form">
+			<span class="gf-form-label">
+				<i class="fa fa-clock-o"></i>
+			</span>
+		</div>
+		<gf-form-switch class="gf-form max-width-30"
+			label="Hide time override info" label-class="width-12"
+			checked="ctrl.panel.hideTimeOverride" switch-class="max-width-6" on-change="ctrl.refresh()">
+		</gf-form-switch>
+	</div>
+</div>
+
+

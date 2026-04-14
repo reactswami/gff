@@ -1,0 +1,141 @@
+<div class="editor-row">
+	<div class="section gf-form-group" ng-repeat="yaxis in ctrl.panel.yaxes">
+
+		<h5 class="section-heading" ng-show="$index === 0">Left Y</h5>
+		<h5 class="section-heading" ng-show="$index === 1">Right Y</h5>
+
+		<gf-form-switch class="gf-form" label="Show" label-class="width-6" checked="yaxis.show" on-change="ctrl.render()"></gf-form-switch>
+
+		<div ng-if="yaxis.show">
+			<div class="gf-form">
+				<label class="gf-form-label width-6">Unit</label>
+				<div class="gf-form-dropdown-typeahead max-width-20" ng-model="yaxis.format" dropdown-typeahead2="ctrl.unitFormats" dropdown-typeahead-on-select="ctrl.setUnitFormat(yaxis, $subItem)"></div>
+			</div>
+		</div>
+
+			<div class="gf-form">
+				<label class="gf-form-label width-6">Scale</label>
+				<div class="gf-form-select-wrapper max-width-20">
+					<select class="gf-form-input" ng-model="yaxis.logBase" ng-options="v as k for (k, v) in ctrl.logScales" ng-change="ctrl.render()"></select>
+				</div>
+			</div>
+
+			<div class="gf-form-inline">
+				<div class="gf-form">
+					<label class="gf-form-label width-6">Y-Min</label>
+					<input type="text" class="gf-form-input width-5" placeholder="auto" empty-to-null ng-model="yaxis.min" ng-change="ctrl.render()" ng-model-onblur>
+				</div>
+				<div class="gf-form">
+					<label class="gf-form-label width-6">Y-Max</label>
+					<input type="text" class="gf-form-input width-5" placeholder="auto" empty-to-null ng-model="yaxis.max" ng-change="ctrl.render()" ng-model-onblur>
+				</div>
+			</div>
+
+		<div ng-if="yaxis.show">
+			<div class="gf-form">
+				<label class="gf-form-label width-6">Decimals</label>
+				<input type="number" class="gf-form-input max-width-20" placeholder="auto" empty-to-null bs-tooltip="'Override automatic decimal precision for y-axis'" data-placement="right" ng-model="yaxis.decimals" ng-change="ctrl.render()" ng-model-onblur>
+			</div>
+
+			<div class="gf-form">
+				<label class="gf-form-label width-6">Label</label>
+				<input type="text" class="gf-form-input max-width-20" ng-model="yaxis.label" ng-change="ctrl.render()" ng-model-onblur>
+			</div>
+		</div>
+	</div>
+
+	<div class="section gf-form-group">
+		<h5 class="section-heading">X-Axis</h5>
+		<gf-form-switch class="gf-form" label="Show" label-class="width-9" checked="ctrl.panel.xaxis.show" on-change="ctrl.render()"></gf-form-switch>
+
+		<div class="gf-form">
+			<label class="gf-form-label width-9">Mode</label>
+			<div class="gf-form-select-wrapper max-width-15">
+				<select class="gf-form-input" ng-model="ctrl.panel.xaxis.mode" ng-options="v as k for (k, v) in ctrl.xAxisModes" ng-change="ctrl.xAxisModeChanged()"> </select>
+			</div>
+		</div>
+
+      <!-- Time mode -->
+		<div class="gf-form" ng-if="ctrl.panel.xaxis.mode === 'time'">
+			<label class="gf-form-label width-9">
+            Date Format
+            <info-popover mode="right-normal">
+               <p>The date format to use for this graph. Dynamic formats will change depending on the overall timeframe (e.g. Show full date for a monthly graph, but only show hours and minutes for a daily graph), whereas static formats will always show as configured.</p>
+            </info-popover>
+         </label>
+			<div class="gf-form-select-wrapper max-width-15">
+			  <select class="gf-form-input" ng-model="ctrl.panel.xaxis.timeformat" ng-options="v as k for (k, v) in ctrl.xAxisTimeFormats" ng-change="ctrl.render()"> </select>
+			</div>
+      </div>
+		<div class="gf-form" ng-if="ctrl.panel.xaxis.mode === 'time' && ctrl.panel.xaxis.timeformat === 'static'">
+			<label class="gf-form-label width-9">
+           Static Format
+           <info-popover mode="right-normal">
+             <p>A custom date format to use. Can be a combination of text and special tokens, e.g. <em>%d/%b/%y</em></p>
+             <span>
+               Tokens:
+               <br>
+               <em>%a</em> Weekday Name (Tue)
+               <br>
+					<em>%b</em> Month Name (Mar)
+               <br>
+					<em>%d</em> Date (31)
+               <br>
+					<!--em>%e</em> c = leftPad(d.getDate(), " "); break;
+               <br-->
+					<em>%H</em> Hours 24h (15)
+               <br>
+					<em>%I</em> Hours 12h (3)
+               <br>
+					<!--em>%l</em> c = leftPad(hours12, " "); break;
+               <br-->
+					<em>%m</em> Month number (6)
+               <br>
+					<em>%M</em> Minutes (08)
+               <br>
+					<em>%q</em> Quarter (4)
+               <br>
+					<em>%S</em> Seconds (08)
+               <br>
+					<em>%y</em> Year 2 digits (19)
+               <br>
+					<em>%Y</em> Year 4 digits (2019)
+               <br>
+					<em>%p</em> am/pm (am)
+               <br>
+					<em>%P</em> AM/PM (AM)
+               <br>
+					<em>%w</em> Weekday (0)
+             </span>
+           </info-popover>
+         </label>
+			<input type="text" class="gf-form-input width-10" placeholder="%d/%b/%y" ng-model="ctrl.panel.xaxis.staticTimeFormat" ng-change="ctrl.render()" ng-model-onblur>
+		</div>
+
+		<!-- Series mode -->
+		<div class="gf-form" ng-if="ctrl.panel.xaxis.mode === 'series'">
+			<label class="gf-form-label width-9">Value</label>
+      <metric-segment-model property="ctrl.panel.xaxis.values[0]" options="ctrl.xAxisStatOptions" on-change="ctrl.xAxisValueChanged()" custom="false" css-class="width-10" select-mode="true"></metric-segment-model>
+		</div>
+
+		<!-- Histogram mode -->
+		<div class="gf-form" ng-if="ctrl.panel.xaxis.mode === 'histogram'">
+			<label class="gf-form-label width-9">Buckets</label>
+			<input type="number" class="gf-form-input max-width-8" ng-model="ctrl.panel.xaxis.buckets" placeholder="auto" ng-change="ctrl.render()" ng-model-onblur bs-tooltip="'Number of buckets'" data-placement="right">
+		</div>
+
+		<div>
+			<br/>
+			<h5 class="section-heading">Y-Axes</h5>
+			<gf-form-switch class="gf-form" label="Align" tooltip="Align left and right Y-axes" label-class="width-9" switch-class="width-5" checked="ctrl.panel.yaxis.align" on-change="ctrl.render()"></gf-form-switch>
+			<div class="gf-form" ng-show="ctrl.panel.yaxis.align">
+				<label class="gf-form-label width-9">
+					Level
+				</label>
+				<input type="number" class="gf-form-input width-5" placeholder="0" ng-model="ctrl.panel.yaxis.alignLevel" ng-change="ctrl.render()" ng-model-onblur bs-tooltip="'Alignment of Y-axes are based on this value, starting from Y=0'" data-placement="right">
+			</div>
+		</div>
+
+	</div>
+
+</div>

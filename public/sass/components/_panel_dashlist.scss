@@ -1,0 +1,117 @@
+.dashlist-section-header {
+  margin-bottom: $spacer;
+  color: $text-color-weak;
+}
+
+.dashlist-section {
+  margin-bottom: $spacer;
+  padding-top: 3px;
+}
+
+.dashlist-link {
+  @include list-item();
+
+  .fa {
+    padding-top: 3px;
+  }
+
+  .dashlist-star {
+    float: right;
+  }
+
+  .fa-star {
+    color: $orange;
+  }
+}
+
+.template-item {
+  @include list-item();
+  width: 100%;
+  padding: 1px 7px;
+  margin: 3px;
+}
+
+.templatelist-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.template {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.template-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.template-desc {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  max-width: 30ch;
+}
+
+.dashlist-section {
+  margin-bottom: $spacer;
+  padding-top: 3px;
+}
+
+.templatelist-section {
+  overflow-x: hidden;
+}
+
+.template-outer-container {
+  flex: 1;
+  width: 100%;
+  overflow-y: scroll;
+  display: flex;
+  flex-flow: column nowrap;
+}
+
+.template-container {
+  flex: 1;
+}
+
+.template-type {
+  width: 2.2rem;
+  height: 2.2rem;
+  padding: 4px;
+  margin-right: 1em;
+}
+
+.template-category {
+  align-self: center;
+  flex: 1;
+}
+
+.template-title-column {
+   min-width: 40ch;
+   display: flex;
+ }
+
+.template-more-info {
+   color: #767980;
+   font-size: 10px;
+   position: relative;
+   text-overflow: ellipsis;
+   overflow-x: hidden;
+}
+
+.template-form-switch {
+   position: relative;
+   min-width: 2rem;
+   margin-right: 0.2rem;
+   padding: 0.5rem 0.5rem;
+   cursor: pointer;
+}
+
+.template-add-panels {
+	padding: 0.5rem 0rem;
+}

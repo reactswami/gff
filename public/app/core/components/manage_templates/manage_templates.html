@@ -1,0 +1,96 @@
+<div class="dashboard-list">
+
+   <div class="page-action-bar page-action-bar--narrow" ng-hide="ctrl.categoryId && !ctrl.hasFilters && ctrl.sections.length === 0">
+      <label class="gf-form gf-form--grow gf-form--has-input-icon">
+         <input type="text" class="gf-form-input max-width-30" placeholder="Template search filter" tabindex="1" give-focus="true" ng-model="ctrl.query.query" ng-model-options="{ debounce: 500 }" spellcheck='false' ng-change="ctrl.onQueryChange()" />
+         <i class="gf-form-input-icon fa fa-search"></i>
+      </label>
+      <div class="page-actionbar__spacer"></div>
+      <a class="btn btn-success" href="template/import" ng-if="ctrl.isEditor">
+         <i class="fa fa-plus"></i>
+         Import
+      </a>
+   </div>
+
+   <div class="page-action-bar page-action-bar--narrow" ng-show="ctrl.hasFilters">
+      <div class="gf-form-inline">
+        <div class="gf-form">
+          <label class="gf-form-label">
+            <a class="pointer" ng-click="ctrl.clearFilters()" bs-tooltip="'Clear current search query and filters'">
+              <i class="fa fa-remove"></i>&nbsp;Clear
+            </a>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-results" ng-show="ctrl.hasFilters && ctrl.sections.length === 0">
+      <em class="muted">
+        No templates matching your query were found.
+      </em>
+    </div>
+
+     <div class="search-results" ng-show="!ctrl.categoryId && !ctrl.hasFilters && ctrl.sections.length === 0">
+      <em class="muted">
+          No templates found.
+      </em>
+    </div>
+
+   <div class="search-results">
+      <div class="search-results-filter-row">
+         <span>
+            <gf-form-switch
+               on-change="ctrl.onSelectAllChanged()"
+               checked="ctrl.selectAllChecked"
+               ng-disabled="ctrl.sections.length === 0"
+               switch-class="gf-form-switch--transparent gf-form-switch--search-result-filter-row__checkbox"
+            />
+         </span>
+         <div class="search-results-filter-row__filters">
+            <div class="gf-form-button-row" ng-show="ctrl.canMove || ctrl.canDelete">
+               <button	type="button"
+                 class="btn gf-form-button btn-inverse"
+                 ng-disabled="!ctrl.canMove"
+                 ng-click="ctrl.moveTo()"
+                 bs-tooltip="ctrl.canMove ? '' : 'Select a template to move (cannot move categories)'"
+                 data-placement="bottom">
+               <i class="fa fa-exchange"></i>&nbsp;&nbsp;Move
+               </button>
+               <button type="button"
+                 class="btn gf-form-button btn-danger"
+                 ng-click="ctrl.delete()"
+                 ng-disabled="!ctrl.canDelete">
+                 <i class="fa fa-trash"></i>&nbsp;&nbsp;Delete
+               </button>
+             </div>
+            <span class="gf-form-select-wrapper">
+               <select
+                  class="search-results-filter-row__filters-item gf-form-input gf-form-select-wrapper--category-filter"
+                  ng-model="ctrl.selectedCategoryFilter"
+                  ng-options="t.text disable when t.disable for t in ctrl.tagCategoryOptions"
+                  ng-change="ctrl.onCategoryFilterChange()"
+               >
+            </span>
+            <span class="gf-form-select-wrapper">
+               <select
+                  class="search-results-filter-row__filters-item gf-form-input"
+                  ng-model="ctrl.selectedTemplateTypeFilter"
+                  ng-options="t.text disable when t.disabled for t in ctrl.templateTypeFilterOptions"
+                  ng-change="ctrl.onTemplateTypeFilterChange()"
+               >
+            </span>
+         </div>
+      </div>
+   </div>
+   <div class="search-results-container" ng-if="ctrl.sections.length > 0">
+      <dashboard-search-results
+        results="ctrl.sections"
+        plugins="ctrl.plugins"
+        editable="true"
+        is-template="true"
+        on-selection-changed="ctrl.selectionChanged($item)"
+        on-tag-selected="ctrl.filterByTag($tag)"
+        on-edit-selected="ctrl.editTemplate($item)"
+      />
+    </div>
+</div>

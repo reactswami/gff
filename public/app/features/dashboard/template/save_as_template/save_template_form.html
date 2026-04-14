@@ -1,0 +1,98 @@
+<form name="ctrl.saveForm" ng-submit="ctrl.save()" class="modal-content folder-modal" novalidate>
+
+   <!--Show the tabs Edit and Export only while editing-->
+  <div class="modal-header modal-header--template" ng-if="ctrl.editing===true">
+    <div>
+      <h2 class="modal-header-title">
+        <i class="gicon" ng-class="{'gicon-folder-new': !ctrl.editing, 'gicon-editor': ctrl.editing}"></i>
+        <span class="p-l-1">{{ctrl.editing === true ? "Edit Template" : "Save as template"}}</span>
+      </h2>
+
+      <a class="modal-header-close" ng-click="ctrl.dismiss();">
+        <i class="fa fa-remove"></i>
+      </a>
+    </div>
+    <div class="gf-form-group gf-form-group--template">
+      <ul class="gf-tabs">
+      <li class="gf-tabs-item">
+         <a class="gf-tabs-link" ng-click="ctrl.index = 1" ng-class="{active: ctrl.index === 1}">
+            Edit
+         </a>
+      </li>
+      <li class="gf-tabs-item">
+         <a class="gf-tabs-link" ng-click="ctrl.index = 2" ng-class="{active: ctrl.index === 2}">
+            Export
+         </a>
+      </li>
+    </ul>
+   </div>
+  </div>
+
+   <div class="gf-form-group p-t-2" ng-if="ctrl.index === 2">
+      <template-export-modal dash="ctrl.data" dismiss="ctrl.dismiss()"></template-export-modal>
+   </div>
+
+   <div class="gf-form-group p-t-2" ng-if="ctrl.index === 1">
+   <h3 class="section-heading" ng-if="ctrl.noFrame === true">
+      Options
+    </h3>
+     <div class="gf-form-inline">
+       <div class="gf-form gf-form--grow">
+         <label class="gf-form-label width-8">Template Name</label>
+         <input type="text"
+            class="input-small gf-form-input"
+            ng-model="ctrl.templateName"
+            placeholder="Template Name"
+            />
+       </div>
+     </div>
+     <div class="gf-form-inline" ng-if="!ctrl.templateName">
+      <div class="gf-form gf-form--grow">
+        <label class="gf-form-label text-warning gf-form-label--grow">
+          <i class="fa fa-warning"></i>
+          Template name cannot be empty
+        </label>
+      </div>
+    </div>
+
+     <div class="gf-form-inline">
+       <div class="gf-form">
+           <category-picker
+             selected-category="ctrl.category.title"
+             on-load="ctrl.onCategoryChange($category)"
+             on-change="ctrl.onCategoryChange($category)"
+             enable-create-new="true"
+             categories="ctrl.categories"
+             label-class="width-7">
+           </category-picker>
+       </div>
+     </div>
+
+   <div class="gf-form-inline">
+      <div class="gf-form gf-form--v-stretch gf-form--grow">
+         <span class="gf-form-label width-8">Description</span>
+         <textarea
+            class="gf-form-input"
+            rows="3"
+            ng-model="ctrl.templateDescription"
+            placeholder="Description"
+            ></textarea>
+      </div>
+   </div>
+
+     <gf-form-switch
+       class="gf-form"
+       id = "share-btn"
+       switch-class="min-width-3 max-width-3"
+       label="Public"
+       label-class="width-8"
+       checked="ctrl.public"
+       style="margin-bottom: unset">
+    </gf-form-switch>
+
+     <div class="text-center m-b-2">
+      <button type="submit" class="btn btn-success" ng-disabled="!ctrl.canSave">Save</button>
+       <a class="btn btn-text" ng-click="ctrl.dismiss();">Cancel</a>
+     </div>
+   </div>
+</form>

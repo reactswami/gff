@@ -1,0 +1,217 @@
+<div class="gf-form-group">
+
+   <!-- Main Section
+      Select drilldown types -
+      [Dashboard, Report, Absolute, Disabled]
+      And Title -->
+   <div class="section">
+      <div class="gf-form">
+         <span class="gf-form-label width-8">Type</span>
+         <div class="gf-form-select-wrapper width-25" ng-if="['image-map', 'pie-chart', 'graph-chart', 'world-map'].includes(ctrl.plugin) === false">
+            <select class="gf-form-input" ng-model="ctrl.type"
+               ng-options="f for f in ['dashboard','absolute', 'report']"
+               ng-change="linkTypeChanged()">
+            </select>
+         </div>
+         <div class="gf-form-select-wrapper width-25" ng-if="['pie-chart', 'graph-chart', 'image-map'].includes(ctrl.plugin)">
+            <select class="gf-form-input" ng-model="ctrl.type"
+               ng-options="f for f in ['disabled', 'dashboard','absolute', 'report']"
+               ng-change="linkTypeChanged()">
+            </select>
+         </div>
+         <div class="gf-form-select-wrapper width-25" ng-if="ctrl.plugin === 'world-map'">
+            <select class="gf-form-input" ng-model="ctrl.type"
+               ng-options="f for f in ['automatic', 'disabled', 'dashboard','absolute', 'report']"
+               ng-change="linkTypeChanged()">
+            </select>
+         </div>
+      </div>
+      <div class="gf-form">
+         <div class="gf-form gf-form gf-form-query-letter-cell" ng-if="ctrl.type === 'report'"
+            style="margin-right: 0.1rem">
+            <label class="gf-form-label width-8">
+               Report
+            </label>
+         </div>
+         <div class="gf-form gf-form--grow" ng-if="ctrl.type === 'report'">
+            <ss-typeahead
+               ng-show="ctrl.type === 'report'"
+               ng-model="ctrl.report"
+               get-options="getReportMenu()"
+               on-change="onReportChange($item)"
+               initialize="reportInitialize($item)"
+               class="width-25">
+            </ss-typeahead>
+         </div>
+         <div class="gf-form gf-form gf-form-query-letter-cell" ng-if="!ctrl.type || ctrl.type === 'dashboard'"
+            style="margin-right: 0.1rem">
+            <label class="gf-form-label width-8">
+               Dashboard
+            </label>
+         </div>
+         <div class="gf-form gf-form--grow" ng-if="ctrl.type === 'dashboard'">
+            <ss-typeahead
+               ng-show="ctrl.type === 'dashboard'"
+               ng-model="ctrl.dashboard"
+               get-options="getDashboardMenu()"
+               on-change="onDashboardChange($item)"
+               initialize="dashInitialize($item)"
+               class="width-25">
+            </ss-typeahead>
+         </div>
+         <div class="gf-form gf-form--grow" ng-if="ctrl.type === 'absolute'">
+            <label class="gf-form-label width-8" ng-if="['image-map', 'world-map'].includes(ctrl.plugin)">
+               Url
+               <info-popover mode="right-normal">
+                  <p>Specify additional URL Parameters</p>
+                  <span ng-if="ctrl.plugin === 'image-map'">
+                     Use special variables to specify node values:
+                     <br>
+                     <em>${__label}</em> refers to the label of the node
+                     <br>
+                     <em>${__value}</em> refers to metric value of the node
+                  </span>
+                  <span ng-if="ctrl.plugin === 'world-map'">
+                     Use special variables to specify worldmap values:
+                     <em>${_TITLE}</em> refers to the configured query title.
+                     <br>
+                     <em>${_LABEL}</em> refers to the combined values of the label fields.
+                     <br>
+                     <em>${_COUNT}</em> refers to the entity/event count (only valid for 'Count by Location' queries)
+                     <br>
+                     <em>${_DEVICE_LIST}</em> refers to the device list
+                     <br>
+                     <em>${_ID_LIST}</em> refers to entity id list
+                     <br>
+                     <em>${_LATITUDE}</em> refers to latitude.
+                     <br>
+                     <em>${_LONGITUDE}</em> refers to longitude.
+                     <br>
+                     <em>${__field_&lt;FIELD_ALIAS&gt;}</em> refers to field alias with space replaced with underscore, eg: Ping RTT - Average will be <code>${__field_Ping_RTT_Average}</code> (not valid for 'Count by Location' queries)
+                  </span>
+               </info-popover>
+            </label>
+            <label class="gf-form-label width-8" ng-if="ctrl.plugin === 'table'">
+               Url
+               <info-popover mode="right-normal">
+                  <p>Specify an URL (relative or absolute)</p>
+                  <span ng-if="ctrl.plugin !== 'world-map'">
+                     Use special variables to specify cell values:
+                     <br>
+                     <em>${__cell}</em> refers to current cell value
+                     <br>
+                     <em>${__cell_n}</em> refers to Nth column value in current row. Column indexes are started from 0. For instance,
+                     <em>${__cell_1}</em> refers to second column's value.
+                     <br>
+                     <em>${__cell:raw}</em> syntax. By default values are URI encoded. If the value is a complete URL you can disable all encoding using this
+                  </span>
+               </info-popover>
+            </label>
+            <label class="gf-form-label width-8" ng-if="!['image-map', 'table', 'world-map'].includes(ctrl.plugin)">
+               Url
+            </label>
+            <input type="text" ng-model="ctrl.url" class="gf-form-input width-25" ng-change="ctrl.internalOnChange()">
+         </div>
+      </div>
+      <div class="gf-form max-width-50">
+         <div class="gf-form-label width-8">Tooltip</div>
+         <input type="text" ng-model="ctrl.linkName" class="gf-form-input width-25" ng-change="ctrl.internalOnChange()">
+      </div>
+   </div>
+</div>
+
+<!-- Sub Section
+   Variable Name, Url Params, Tooltip,
+   Include Time Filter, Include Variable, Open in New Window
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+<div class="section">
+   <div ng-if="['pie-chart', 'graph-chart', 'world-map'].includes(ctrl.plugin)">
+      <div class="gf-form" ng-show="['disabled', 'automatic'].includes(ctrl.type) === false && ctrl.includeVars">
+         <span class="gf-form-label width-10">
+            Variable name
+            <info-popover mode="right-normal">
+               The name of the variable to use for the label (default 'label')
+            </info-popover>
+         </span>
+         <input type="text" class="gf-form-input max-width-10" placeholder="label" ng-model="ctrl.varName" />
+      </div>
+      <gf-form-switch
+         ng-if="ctrl.type !== 'disabled' && ctrl.plugin !== 'world-map'"
+         class="gf-form"
+         label-class="width-10"
+         label="Show in legend"
+         checked="ctrl.showLegend"
+         on-change="ctrl.internalOnChange()">
+      </gf-form-switch>
+   </div>
+   <div class="gf-form" ng-if="(ctrl.type === 'dashboard' || ctrl.type === 'report')">
+      <label class="gf-form-label width-10">
+         Url Params
+         <info-popover mode="right-normal">
+            <p>Specify additional URL Parameters</p>
+            <span ng-if="ctrl.plugin === 'pie-chart'">
+               Use special variables to specify slice values:
+               <br>
+               <em>${__label}</em> refers to the label of the slice
+            </span>
+            <span ng-if="ctrl.plugin === 'graph-chart'">
+               Use special variables to specify series values:
+               <br>
+               <em>${__label}</em> refers to the label of series
+            </span>
+            <span ng-if="ctrl.plugin === 'image-map'">
+               Use special variables to specify node values:
+               <br>
+               <em>${__label}</em> refers to the label of the node
+               <br>
+               <em>${__value}</em> refers to metric value of the node
+            </span>
+            <span ng-if="ctrl.plugin === 'table'">
+               Use special variables to specify cell values:
+               <br>
+               <em>${__cell}</em> refers to current cell value
+               <br>
+               <em>${__cell_n}</em> refers to Nth column value in current row. Column indexes are started from 0. For instance,
+               <em>${__cell_1}</em> refers to second column's value.
+               <br>
+               <em>${__cell:raw}</em> syntax. By default values are URI encoded. If the value is a complete URL you can disable all encoding using this
+            </span>
+            <span ng-if="ctrl.plugin === 'world-map'">
+               Use special variables to specify worldmap values:
+               <em>${_TITLE}</em> refers to the configured query title.
+               <br>
+               <em>${_LABEL}</em> refers to the combined values of the label fields.
+               <br>
+               <em>${_COUNT}</em> refers to the entity/event count (only valid for 'Count by Location' queries)
+               <br>
+               <em>${_DEVICE_LIST}</em> refers to the device list
+               <br>
+               <em>${_ID_LIST}</em> refers to entity id list
+               <br>
+               <em>${_LATITUDE}</em> refers to latitude.
+               <br>
+               <em>${_LONGITUDE}</em> refers to longitude.
+               <br>
+               <em>${__field_&lt;FIELD_ALIAS&gt;}</em> refers to field alias with space replaced with underscore, eg: Ping RTT - Average will be <code>${__field_Ping_RTT_Average}</code> (not valid for 'Count by Location' queries)
+            </span>
+         </info-popover>
+      </label>
+      <input type="text" ng-model="ctrl.params" class="gf-form-input width-23" ng-change="ctrl.internalOnChange()">
+   </div>
+   <gf-form-switch class="gf-form" label-class="width-10"
+      label="Include time range" checked="ctrl.keepTime"
+      ng-if="['disabled', 'automatic'].includes(ctrl.type) === false"
+      on-change="ctrl.internalOnChange()">
+   </gf-form-switch>
+   <gf-form-switch class="gf-form"
+      label-class="width-10" label="Include variables" checked="ctrl.includeVars"
+      ng-if="['disabled', 'automatic'].includes(ctrl.type) === false"
+      on-change="ctrl.internalOnChange()">
+   </gf-form-switch>
+   <gf-form-switch class="gf-form"
+      label-class="width-10" label="Open in new tab " checked="ctrl.targetBlank"
+      ng-if="['disabled', 'automatic'].includes(ctrl.type) === false"
+      on-change="ctrl.internalOnChange()">
+   </gf-form-switch>
+</div>
+</div>

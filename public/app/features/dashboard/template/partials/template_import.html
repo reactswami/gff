@@ -1,0 +1,40 @@
+<page-header model="ctrl.navModel"></page-header>
+
+<div class="page-container page-body" ng-cloak>
+  <div ng-if="ctrl.step === 1">
+
+    <div class="gf-form-group">
+      <p>A template can be imported from a saved JSON file, or by pasting the template JSON in the area below.</p>
+      <div class="gf-form" style="margin-bottom: 10px;">
+        <textarea rows="10" data-share-panel-url="" class="gf-form-input" ng-model="ctrl.jsonText"></textarea>
+      </div>
+      <form class="page-action-bar">
+        <dash-upload on-upload="ctrl.onUpload(dash)"></dash-upload>
+        <button type="button" class="btn btn-secondary" ng-click="ctrl.loadJsonText()" style="margin-left: 10px;">
+          <i class="fa fa-paste"></i>
+          Load JSON Text
+        </button>
+        <span ng-if="ctrl.parseError" class="text-error p-l-1">
+          <i class="fa fa-warning"></i>
+          {{ctrl.parseError}}
+        </span>
+      </form>
+    </div>
+  </div>
+
+  <div ng-if="ctrl.step === 2">
+
+   <save-template-form dismiss="ctrl.dismiss()"
+    template-name="ctrl.templateName"
+    categories="ctrl.categories"
+    editing="ctrl.editing"
+    data="ctrl.data"
+    category="ctrl.category"
+    public="ctrl.public"
+    template="ctrl.template"
+    no-frame=true
+    template-description="ctrl.templateDescription"
+    templates="ctrl.templates" after-save="ctrl.after($templates)">
+   </save-template-form>
+  </div>
+</div>

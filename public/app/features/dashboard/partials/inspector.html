@@ -1,0 +1,26 @@
+<div class="modal-body" ng-controller="InspectCtrl" ng-init="init()">
+	<div class="modal-header">
+		<h2 class="modal-header-title">
+			<i class="fa fa-info-circle"></i>
+			<span ng-if="message" class="p-l-1">Error</span>
+			<span ng-if="!message" class="p-l-1">Links</span>
+		</h2>
+
+		<a class="modal-header-close" ng-click="dismiss();">
+			<i class="fa fa-remove"></i>
+		</a>
+	</div>
+
+	<div class="modal-content">
+		<div ng-if="!message" ng-bind-html="panelInfoHtml">
+		</div>
+
+		<div ng-if="message">
+<pre>
+{{message}}
+</pre>
+		</div>
+
+	</div>
+</div>
+

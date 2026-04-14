@@ -1,0 +1,99 @@
+{
+  "list": [
+    {
+      "allValue": "1",
+      "current": {
+        "selected": true,
+        "text": "All",
+        "value": "$__all"
+      },
+      "datasource": "Statseeker",
+      "definition": "custom query",
+      "hide": 0,
+      "includeAll": true,
+      "label": null,
+      "multi": true,
+      "name": "Group",
+      "options": [
+
+      ],
+      "query": {
+        "filter": "",
+        "groups": "",
+        "label": [
+          "group..name."
+        ],
+        "object": "custom",
+        "query": "{\"field\":null,\"fields\":[{\"alias\":\"Value\",\"aliasOverride\":false,\"datatype\":\"integer\",\"format\":{\"alias\":null,\"datatype\":null,\"value\":null},\"id\":\"_d6vddavox\",\"options\":{\"states\":{},\"stats\":{}},\"polltype\":\"\",\"statsExpand\":false,\"text\":\"ID\",\"value\":\"group..id\"},{\"alias\":\"FIELD_0\",\"aliasOverride\":false,\"datatype\":\"string\",\"format\":{\"alias\":null,\"datatype\":null,\"value\":null},\"id\":\"_ktuppmkf7\",\"options\":{\"states\":{},\"stats\":{}},\"polltype\":\"\",\"statsExpand\":false,\"text\":\"Name\",\"value\":\"group..name\"}],\"filters\":[{\"field\":{\"id\":\"_jsefbczir\",\"text\":\"ID\",\"value\":\"group..id\",\"datatype\":\"integer\",\"format\":{\"alias\":null,\"value\":null,\"datatype\":null},\"options\":{\"states\":{},\"stats\":{}},\"polltype\":\"\",\"statsExpand\":false},\"action\":\"!=\",\"value\":\"1\"}],\"group_by\":{\"field\":{\"statsExpand\":false},\"format\":\"avg\"},\"groups\":[],\"interval\":null,\"label\":[],\"limit\":0,\"object\":\"group\",\"panelType\":\"table\",\"queryType\":\"standard\",\"rawMode\":false,\"rawQuery\":null,\"refId\":\"A\",\"sort\":[],\"summary\":\"Standard Query - device\",\"version\":1}",
+        "value": "group..id"
+      },
+      "refresh": 1,
+      "regex": "",
+      "skipUrlSync": false,
+      "sort": 5,
+      "tagValuesQuery": "",
+      "tags": [
+
+      ],
+      "tagsQuery": "",
+      "type": "query",
+      "useTags": false
+    },
+    {
+      "allValue": null,
+      "current": {
+        "text": "All",
+        "value": "$__all"
+      },
+      "datasource": "Statseeker",
+      "definition": "custom query",
+      "hide": 0,
+      "includeAll": true,
+      "label": null,
+      "multi": true,
+      "name": "Device",
+      "options": [
+
+      ],
+      "query": {
+        "filter": "",
+        "groups": "$Group",
+        "label": [
+          "device..name."
+        ],
+        "object": "custom",
+        "query": "{\"panelType\": \"table\", \"filters\": [{\"action\": \"=\", \"datatype\": \"string\", \"field\": \"device..retired.\", \"value\": \"off\"}], \"limit\": 0, \"field\": null, \"group_by\": {\"format\": \"avg\"}, \"queryType\": \"standard\", \"groups\": [{\"value\": \"$Group\"}], \"sort\": [], \"fields\": [{\"id\": \"_CPLU9PFDZ\", \"alias\": \"Value\", \"value\": \"device..id.\"}, {\"id\": \"_2O4FHDJFQ\", \"alias\": \"FIELD_0\", \"value\": \"device..name.\"}], \"object\": \"device\", \"interval\": null, \"label\": []}",
+        "value": "device..id."
+      },
+      "refresh": 1,
+      "regex": "",
+      "skipUrlSync": false,
+      "sort": 5,
+      "tagValuesQuery": "",
+      "tags": [
+
+      ],
+      "tagsQuery": "",
+      "type": "query",
+      "useTags": false
+    },
+    {
+      "current": {
+        "text": "5",
+        "value": "5"
+      },
+      "hide": 0,
+      "label": "Top N",
+      "name": "TopN",
+      "options": [
+        {
+          "text": "5",
+          "value": "5"
+        }
+      ],
+      "query": "5",
+      "skipUrlSync": false,
+      "type": "textbox"
+    }
+  ]
+}

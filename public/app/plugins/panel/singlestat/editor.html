@@ -1,0 +1,85 @@
+<div class="editor-row">
+  <div class="section gf-form-group">
+    <h5 class="section-heading">Value</h5>
+
+    <div class="gf-form">
+      <label class="gf-form-label width-7">Unit</label>
+      <div class="gf-form-dropdown-typeahead width-18" ng-model="ctrl.panel.format" dropdown-typeahead2="ctrl.unitFormats" dropdown-typeahead-on-select="ctrl.setUnitFormat($subItem)"></div>
+    </div>
+    <div class="gf-form">
+      <label class="gf-form-label width-7">Decimals</label>
+      <input type="number" class="gf-form-input width-18" placeholder="auto" data-placement="right" bs-tooltip="'Override automatic decimal precision for legend and tooltips'" ng-model="ctrl.panel.decimals" ng-change="ctrl.refresh()" ng-model-onblur>
+    </div>
+
+    <div class="gf-form">
+        <label class="gf-form-label width-7">Prefix</label>
+        <input type="text" class="gf-form-input width-18" ng-model="ctrl.panel.prefix" ng-change="ctrl.render()" ng-model-onblur>
+      </div>
+      <div class="gf-form">
+        <label class="gf-form-label width-7">Postfix</label>
+        <input type="text" class="gf-form-input width-18" ng-model="ctrl.panel.postfix" ng-change="ctrl.render()" ng-model-onblur>
+      </div>
+
+    <div class="gf-form">
+      <label class="gf-form-label width-7">Value size</label>
+      <div class="gf-form-select-wrapper">
+        <select class="gf-form-input" ng-model="ctrl.panel.valueFontSize" ng-options="f for f in ctrl.fontSizes" ng-change="ctrl.render()"></select>
+      </div>
+    </div>
+    <div class="gf-form">
+      <label class="gf-form-label width-7">Prefix size</label>
+      <div class="gf-form-select-wrapper">
+        <select class="gf-form-input" ng-model="ctrl.panel.prefixFontSize" ng-options="f for f in ctrl.fontSizes" ng-change="ctrl.render()" ng-disabled="!ctrl.canModifyText()"></select>
+      </div>
+    </div>
+    <div class="gf-form">
+      <label class="gf-form-label width-7">Postfix size</label>
+      <div class="gf-form-select-wrapper">
+        <select class="input-small gf-form-input" ng-model="ctrl.panel.postfixFontSize" ng-options="f for f in ctrl.fontSizes" ng-change="ctrl.render()" ng-disabled="!ctrl.canModifyText()"></select>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section gf-form-group">
+    <h5 class="section-heading">Coloring</h5>
+    <div class="gf-form-inline">
+      <gf-form-switch class="gf-form" label-class="width-8" label="Background" checked="ctrl.panel.colorBackground" on-change="ctrl.render()"></gf-form-switch>
+      <gf-form-switch class="gf-form" label-class="width-6" label="Value" checked="ctrl.panel.colorValue" on-change="ctrl.render()"></gf-form-switch>
+    </div>
+    <div class="gf-form-inline">
+      <gf-form-switch class="gf-form" label-class="width-8" label="Prefix" checked="ctrl.panel.colorPrefix" on-change="ctrl.render()" ng-disabled="!ctrl.canModifyText()"></gf-form-switch>
+      <gf-form-switch class="gf-form" label-class="width-6" label="Postfix" checked="ctrl.panel.colorPostfix" on-change="ctrl.render()" ng-disabled="!ctrl.canModifyText()"></gf-form-switch>
+    </div>
+    <div class="gf-form-group">
+      <div class="gf-form" ng-repeat="c in ctrl.panel.coloring">
+        <span class="gf-form-label">
+          <i class="fa fa-remove pointer" ng-click="ctrl.removeColoring($index)"></i>
+        </span>
+        <select class="gf-form-input width-7" ng-model="c.type" ng-options="t.value as t.text for t in ctrl.coloringTypes" ng-change="ctrl.render()"></select>
+        <span  ng-if="c.type === 'range'" class="gf-form-label">From</span>
+        <input ng-if="c.type === 'range'" type="text" ng-model="c.from" class="gf-form-input max-width-6" ng-blur="ctrl.render()">
+        <span  ng-if="c.type === 'range'" class="gf-form-label">To</span>
+        <input ng-if="c.type === 'range'" type="text" ng-model="c.to" class="gf-form-input max-width-6" ng-blur="ctrl.render()">
+        <input ng-if="c.type === 'regex'" type="text" class="gf-form-input" ng-model="c.regex" placeholder="Regex" ng-blur="ctrl.render()">
+        <span class="gf-form-label">
+          <color-picker color="c.color" onChange="ctrl.onColorChange(c)"></color-picker>
+        </span>
+      </div>
+      <div class="gf-form">
+        <label class="gf-form-label">
+          <a class="pointer" ng-click="ctrl.addColoring()"><i class="fa fa-plus"></i></a>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="section gf-form-group">
+    <h5 class="section-heading">Gauge</h5>
+    <gf-form-switch class="gf-form" label-class="width-10" switch-class="max-width-6" label="Show" checked="ctrl.panel.gauge.show" on-change="ctrl.render()"></gf-form-switch>
+    <div ng-if="ctrl.panel.gauge.show">
+      <gf-form-switch class="gf-form" label-class="width-10" switch-class="max-width-6" label="Labels" checked="ctrl.panel.gauge.labels" on-change="ctrl.render()"></gf-form-switch>
+      <gf-form-switch class="gf-form" label-class="width-10" switch-class="max-width-6" label="Markers" checked="ctrl.panel.gauge.markers" on-change="ctrl.render()"></gf-form-switch>
+    </div>
+  </div>
+</div>

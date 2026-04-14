@@ -1,0 +1,34 @@
+<div class="modal-body">
+  <div class="modal-header">
+    <h2 class="modal-header-title">
+			<i class="gicon gicon-folder-new"></i>
+      <span class="p-l-1">Choose Template Category</span>
+    </h2>
+
+    <a class="modal-header-close" ng-click="ctrl.dismiss();">
+      <i class="fa fa-remove"></i>
+    </a>
+  </div>
+
+  <form name="ctrl.saveForm" ng-submit="ctrl.save()" class="modal-content folder-modal" novalidate>
+    <p>Move the {{ctrl.templates.length}} selected templates to the following category:</p>
+
+    <div class="p-t-2">
+      <div class="gf-form">
+          <category-picker
+            on-load="ctrl.onCategoryChange($category)"
+            on-change="ctrl.onCategoryChange($category)"
+            enter-category-creation="ctrl.onEnterCategoryCreation()"
+            exit-category-creation="ctrl.onExitCategoryCreation()"
+            enable-create-new="true"
+            categories="ctrl.categories"
+            label-class="width-7">
+          </category-picker>
+      </div>
+    </div>
+    <div class="gf-form-button-row text-center">
+      <button type="submit" class="btn btn-success" ng-disabled="!ctrl.isValidCategorySelection">Move</button>
+      <a class="btn-text" ng-click="ctrl.dismiss();">Cancel</a>
+    </div>
+  </form>
+</div>

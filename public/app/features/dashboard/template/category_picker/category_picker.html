@@ -1,0 +1,31 @@
+<div class="gf-form-inline">
+   <div class="gf-form">
+     <label class="gf-form-label width-8 {{ctrl.labelClass}}">Category</label>
+     <div class="dropdown" ng-hide="ctrl.createNewCategory">
+       <gf-form-dropdown model="ctrl.category"
+         get-options="ctrl.getOptions($query)"
+         on-change="ctrl.onCategoryChange($option)">
+       </gf-form-dropdown>
+     </div>
+     <input type="text"
+       class="gf-form-input max-width-10"
+       ng-if="ctrl.createNewCategory"
+       give-focus="ctrl.createNewCategory"
+       ng-model="ctrl.newCategoryName"
+       ng-model-options="{ debounce: 400 }"
+       ng-change="ctrl.newCategoryNameChanged()" />
+   </div>
+   <div class="gf-form" ng-if="ctrl.createNewCategory">
+     <button class="btn btn-inverse" ng-click="ctrl.cancelCreateCategory($event)">
+       Cancel
+   </button>
+   </div>
+ </div>
+ <div class="gf-form-inline" ng-if="ctrl.newCategoryNameTouched && ctrl.hasValidationError">
+   <div class="gf-form gf-form--grow">
+     <label class="gf-form-label text-warning gf-form-label--grow">
+       <i class="fa fa-warning"></i>
+       {{ctrl.validationError}}
+     </label>
+   </div>
+ </div>
