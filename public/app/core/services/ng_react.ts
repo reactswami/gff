@@ -149,24 +149,25 @@ function watchProps(watchDepth, scope, watchExpressions, listener) {
 
 // render React component, with scope[attrs.props] being passed in as the component props
 function renderComponent(component, props, scope, elem) {
-  // If we are already inside a $digest or $apply (e.g. called from $compile inside a $watch),
-  // $evalAsync defers until the end of the current cycle — elem[0] is still valid.
-  // If we are outside Angular (e.g. from a React event), use $evalAsync to enter a digest.
-  // Both cases are handled by $evalAsync, but if elem is about to be detached, render immediately.
   const doRender = () => {
-    if (elem[0] && elem[0].ownerDocument) {
+    if (elem[0] && elem[0].parentNode) {
       ReactDOM.render(React.createElement(component, props), elem[0]);
     }
   };
 
-  const phase = scope.$root && scope.$root.$$phase;
-  if (phase === '$apply' || phase === '$digest') {
-    // Already in a digest — render immediately so the component mounts before
-    // any subsequent DOM manipulation (e.g. ssStatsOptions appending compiled elements).
-    doRender();
-  } else {
-    scope.$evalAsync(doRender);
+  // Clear the element's text content immediately so transcluded text does not
+  // appear as plain text while waiting for React to mount.
+  // This is safe: ng_react owns the element's innerHTML from this point forward.
+  if (elem[0] && elem[0].childNodes.length > 0) {
+    // Only clear text nodes — not compiled child elements (Angular may have already
+    // processed them). If all children are text nodes, clear them.
+    const allText = Array.from(elem[0].childNodes).every(n => n.nodeType === 3);
+    if (allText) {
+      elem[0].innerHTML = '';
+    }
   }
+
+  scope.$evalAsync(doRender);
 }
 
 // get prop name from prop (string or array)
