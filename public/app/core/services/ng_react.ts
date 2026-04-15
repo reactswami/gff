@@ -342,8 +342,12 @@ const reactDirective = $injector => {
             try {
               const parsed = $parse(attrValue);
               if (parsed.assign) {
+                // Don't call scope.$apply here — applyFunctions (called below) wraps
+                // this function in the safe applied() wrapper that checks $$phase first.
+                // Calling $apply directly here would cause double-$apply when combined
+                // with the applyFunctions wrapper, throwing "already in progress".
                 scopeProps['__set_' + propName + '__'] = (newVal) => {
-                  scope.$apply(() => { parsed.assign(scope, newVal); });
+                  parsed.assign(scope, newVal);
                 };
               }
             } catch (e) { /* not assignable */ }
