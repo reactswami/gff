@@ -37,17 +37,24 @@ export type InfoPopoverMode =
   | 'header';
 
 interface InfoPopoverProps {
-  children: ReactNode;
+  children?: ReactNode;
   mode?: InfoPopoverMode;
   /** Optional pixel offset, mirrors the offset attribute (default "0 -10px") */
   offset?: string;
   /** Optional position override, mirrors the position attribute */
   position?: InfoPopoverMode;
+  /**
+   * Injected by ng_react when <info-popover> has child text/HTML content
+   * (Angular transclude equivalent). Used when children is not available
+   * because the component is mounted via the ng_react bridge.
+   */
+  __innerHTML__?: string;
 }
 
 export const InfoPopover: React.FC<InfoPopoverProps> = ({
   children,
   mode = 'right-normal',
+  __innerHTML__,
 }) => {
   const [visible, setVisible] = useState(false);
   const iconRef = useRef<HTMLElement>(null);
@@ -97,7 +104,11 @@ export const InfoPopover: React.FC<InfoPopoverProps> = ({
           onMouseLeave={hide}
         >
           <div className="markdown-html">
-            {children}
+            {children
+              ? children
+              : __innerHTML__
+                ? <span dangerouslySetInnerHTML={{ __html: __innerHTML__ }} />
+                : null}
           </div>
         </div>
       )}

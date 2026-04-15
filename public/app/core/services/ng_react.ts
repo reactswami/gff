@@ -267,6 +267,12 @@ const reactDirective = $injector => {
         const reactComponent = getReactComponent(reactComponentName, $injector);
         const $parse = $injector.get('$parse');
 
+        // Capture any transcluded child content from the directive element before
+        // ng_react replaces it. This handles directives like <info-popover>text</info-popover>
+        // where the original Angular directive used 'transclude: true'.
+        // The captured HTML is passed as __innerHTML__ so React can render it as children.
+        const transcludedHTML = elem[0].innerHTML ? elem[0].innerHTML.trim() : '';
+
         // if props is not defined, fall back to use the React component's propTypes if present
         props = props || Object.keys(reactComponent.propTypes || {});
 
@@ -342,6 +348,11 @@ const reactDirective = $injector => {
               }
             } catch (e) { /* not assignable */ }
           });
+
+          // Inject transcluded content captured at link time
+          if (transcludedHTML) {
+            scopeProps['__innerHTML__'] = transcludedHTML;
+          }
 
           scopeProps = applyFunctions(scopeProps, scope, config);
           scopeProps = angular.extend({}, scopeProps, injectableProps);
