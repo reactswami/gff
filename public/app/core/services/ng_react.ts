@@ -161,7 +161,7 @@ function renderComponent(component, props, scope, elem) {
   if (elem[0] && elem[0].childNodes.length > 0) {
     // Only clear text nodes — not compiled child elements (Angular may have already
     // processed them). If all children are text nodes, clear them.
-    const allText = Array.from(elem[0].childNodes).every(n => n.nodeType === 3);
+    const allText = Array.from(elem[0].childNodes).every((n: ChildNode) => n.nodeType === Node.TEXT_NODE);
     if (allText) {
       elem[0].innerHTML = '';
     }
