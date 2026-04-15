@@ -3,7 +3,6 @@ import { SearchSrv } from 'app/core/services/search_srv';
 import _ from 'lodash';
 import appEvents from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
-import coreModule from '../../core_module';
 
 export class SearchCtrl {
   isOpen: boolean;
@@ -282,4 +281,5 @@ export function searchDirective() {
   };
 }
 
-coreModule.directive('dashboardSearch', searchDirective);
+// Replaced by DashboardSearch.tsx registered in angular_wrappers.ts
+// coreModule.directive('dashboardSearch', searchDirective);

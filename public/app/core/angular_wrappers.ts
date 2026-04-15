@@ -16,6 +16,7 @@ import { MetricsTabOptions } from '../features/panel/MetricsTabOptions';
 import { GraphLegendEditor } from '../plugins/panel/graph/GraphLegendEditor';
 import { GraphThresholdForm } from '../plugins/panel/graph/GraphThresholdForm';
 import { FolderPicker } from '../features/dashboard/folder_picker/FolderPicker';
+import { DashboardSearch } from './components/search/DashboardSearch';
 import { Navbar } from './components/navbar/Navbar';
 import { PageH1 } from './components/navbar/PageH1';
 
@@ -122,6 +123,11 @@ export function registerAngularDirectives() {
     ['enableCreateNew', { watchDepth: 'one-time' }],
     ['enableReset', { watchDepth: 'one-time' }],
   ]);
+
+  // DashboardSearch — replaces dashboardSearch Angular directive + search.html
+  // Handles its own show/hide via appEvents ('show-dash-search', 'hide-dash-search').
+  // No props needed — it's a self-contained overlay component.
+  react2AngularDirective('dashboardSearch', DashboardSearch, []);
 
   // Navbar — replaces navbar Angular directive + navbar.html (breadcrumb rendering).
   // dashboard-search stays Angular, kept in navbar.html after the React component tag.
