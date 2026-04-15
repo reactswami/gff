@@ -108,42 +108,44 @@ function watchProps(watchDepth, scope, watchExpressions, listener) {
   const supportsWatchGroup = angular.isFunction(scope.$watchGroup);
 
   const watchGroupExpressions = [];
+  let watchesRegistered = 0;
 
   watchExpressions.forEach(expr => {
     const actualExpr = getPropExpression(expr);
     const exprWatchDepth = getPropWatchDepth(watchDepth, expr);
 
     // Never watch call expressions like "ctrl.refresh()" or "ctrl.render()".
-    // $watchGroup/$watch evaluates the expression every digest to detect changes,
-    // which INVOKES the function each cycle and causes infdig loops.
-    // Function callback props are stable — they never need to be watched.
     if (actualExpr && actualExpr.includes('(')) {
       return;
     }
 
     if (exprWatchDepth === 'collection' && supportsWatchCollection) {
       scope.$watchCollection(actualExpr, listener);
+      watchesRegistered++;
     } else if (exprWatchDepth === 'reference' && supportsWatchGroup) {
       watchGroupExpressions.push(actualExpr);
+      watchesRegistered++;
     } else if (exprWatchDepth === 'one-time') {
-      //do nothing because we handle our one time bindings after this
+      //do nothing — handled below
     } else {
-      // Guard against plain string literals (e.g. label="Include time range") being
-      // passed as watch expressions — $parse will throw a syntax error on them.
       try {
         scope.$watch(actualExpr, listener, exprWatchDepth !== 'reference');
+        watchesRegistered++;
       } catch (e) {
-        // Not a valid Angular expression — it's a static string literal, skip watching.
+        // Not a valid Angular expression — static string literal, skip watching.
       }
     }
   });
 
   if (watchDepth === 'one-time') {
+    // Global one-time: render once immediately
     listener();
-  }
-
-  if (watchGroupExpressions.length) {
+  } else if (watchGroupExpressions.length) {
     scope.$watchGroup(watchGroupExpressions, listener);
+  } else if (watchesRegistered === 0) {
+    // No watches registered at all (e.g. all props are one-time or call expressions).
+    // Call listener once immediately so the component actually mounts.
+    listener();
   }
 }
 
@@ -302,7 +304,12 @@ const reactDirective = $injector => {
         // element itself — mirroring what the old Angular tether-drop directive did
         // with elem.addClass(). This makes the element visible as a proper flex item
         // inside gf-form-label before React mounts.
-        if (reactComponentName === 'InfoPopover') {
+        // reactComponentName may be a function (when passed directly via react2AngularDirective).
+        // Check both the name string and the component's function name to identify InfoPopover.
+        const componentFnName = typeof reactComponentName === 'function'
+          ? (reactComponentName.displayName || reactComponentName.name || '')
+          : reactComponentName;
+        if (componentFnName === 'InfoPopover') {
           const mode = attrs.mode || 'right-normal';
           elem[0].classList.add('gf-form-help-icon');
           elem[0].classList.add(`gf-form-help-icon--${mode}`);
