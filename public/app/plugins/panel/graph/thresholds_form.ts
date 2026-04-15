@@ -64,14 +64,14 @@ export class ThresholdFormCtrl {
 
 // Replaced by GraphThresholdForm.tsx registered in angular_wrappers.ts
 // coreModule.directive('graphThresholdForm', () => {
-  return {
-    restrict: 'E',
-    templateUrl: 'public/app/plugins/panel/graph/thresholds_form.html',
-    controller: ThresholdFormCtrl,
-    bindToController: true,
-    controllerAs: 'ctrl',
-    scope: {
-      panelCtrl: '=',
-    },
-  };
-});
+//   return {
+//     restrict: 'E',
+//     templateUrl: 'public/app/plugins/panel/graph/thresholds_form.html',
+//     controller: ThresholdFormCtrl,
+//     bindToController: true,
+//     controllerAs: 'ctrl',
+//     scope: {
+//       panelCtrl: '=',
+//     },
+//   };
+// });

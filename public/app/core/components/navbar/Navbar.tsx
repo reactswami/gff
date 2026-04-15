@@ -14,7 +14,6 @@
 // appEvent. navItemClicked is no longer needed because we render anchors directly.
 
 import React from 'react';
-import appEvents from 'app/core/app_events';
 
 interface Breadcrumb {
   url: string;

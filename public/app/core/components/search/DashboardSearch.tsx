@@ -25,7 +25,7 @@ import _ from 'lodash';
 import appEvents from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
 import { searchDashboards, getDashboardTags } from 'app/core/services/search_utils';
-import { SearchResults, SearchSection, SearchItem } from 'app/core/components/search/SearchResults';
+import { SearchResults, SearchSection } from 'app/core/components/search/SearchResults';
 import { TagFilter } from 'app/core/components/TagFilter/TagFilter';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
