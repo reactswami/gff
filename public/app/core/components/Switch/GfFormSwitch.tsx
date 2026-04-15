@@ -37,6 +37,12 @@ export interface GfFormSwitchProps {
   /** Called with no arguments when the toggle changes — mirrors Angular on-change="expr" */
   onChange: () => void;
   className?: string;
+  /**
+   * Injected by ng_react for two-way binding — writes the new checked value back to
+   * the Angular scope expression (e.g. yaxis.show, annotation.enable).
+   * Mirrors the old Angular directive's scope: { checked: '=' } two-way binding.
+   */
+  __set_checked__?: (value: boolean) => void;
 }
 
 interface State {
@@ -49,11 +55,14 @@ export class GfFormSwitch extends PureComponent<GfFormSwitchProps, State> {
   };
 
   handleChange = () => {
-    // Call onChange synchronously — no setTimeout wrapper needed.
-    // The original Angular directive used $timeout to defer past the $digest cycle,
-    // but React's synthetic onChange fires after event handling is complete.
-    // Using setTimeout(0) here causes the callback to run OUTSIDE Angular's digest,
-    // which makes ctrl.render()/refresh() call $apply on a nested digest → infdig loop.
+    // Write the new boolean value back to the Angular scope expression via the
+    // ng_react-injected two-way binding setter (mirrors old scope: { checked: '=' }).
+    // This is what makes "checked=yaxis.show" update yaxis.show when toggled.
+    const nextValue = !this.props.checked;
+    if (this.props.__set_checked__) {
+      this.props.__set_checked__(nextValue);
+    }
+    // Then call the Angular onChange handler (e.g. ctrl.render(), ctrl.refresh()).
     this.props.onChange();
   };
 

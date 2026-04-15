@@ -309,13 +309,38 @@ const reactDirective = $injector => {
                 catch (e2) { scopeProps[propName] = attrValue; }
               }
             } else {
-              // Plain value props — use $eval with fallback to raw string for literals
+              // Plain value props — use $eval with fallback to raw string for literals.
+              // If $eval returns undefined AND the value looks like a plain word
+              // (no dots, brackets, operators), treat it as a string literal.
               try {
-                scopeProps[propName] = scope.$eval(attrValue);
+                const evaled = scope.$eval(attrValue);
+                if (evaled === undefined && /^[A-Za-z_$][A-Za-z0-9_$ ]*$/.test(attrValue)) {
+                  // e.g. label="Show" — "Show" has no match in scope, use raw string
+                  scopeProps[propName] = attrValue;
+                } else {
+                  scopeProps[propName] = evaled;
+                }
               } catch (e) {
                 scopeProps[propName] = attrValue;
               }
             }
+          });
+
+          // For props that are assignable scope expressions (e.g. checked="yaxis.show"),
+          // inject a setter function __set_<propName>__ so React components can write
+          // back to Angular scope — replicating two-way ('=') binding behaviour.
+          props.forEach(prop => {
+            const propName = getPropName(prop);
+            const attrValue = findAttribute(attrs, propName);
+            if (!attrValue || attrValue.includes('(')) { return; }
+            try {
+              const parsed = $parse(attrValue);
+              if (parsed.assign) {
+                scopeProps['__set_' + propName + '__'] = (newVal) => {
+                  scope.$apply(() => { parsed.assign(scope, newVal); });
+                };
+              }
+            } catch (e) { /* not assignable */ }
           });
 
           scopeProps = applyFunctions(scopeProps, scope, config);
