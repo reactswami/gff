@@ -276,7 +276,6 @@ const reactDirective = $injector => {
   return (reactComponentName, props, conf, injectableProps) => {
     const directive = {
       restrict: 'E',
-      replace: true,
       link: function(scope, elem, attrs) {
         const reactComponent = getReactComponent(reactComponentName, $injector);
         const $parse = $injector.get('$parse');
