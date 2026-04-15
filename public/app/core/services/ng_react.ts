@@ -149,21 +149,31 @@ function watchProps(watchDepth, scope, watchExpressions, listener) {
 
 // render React component, with scope[attrs.props] being passed in as the component props
 function renderComponent(component, props, scope, elem) {
+  const componentName = component && (component.displayName || component.name || 'Unknown');
+  const tagName = elem[0] && elem[0].tagName;
+  const inDOM = !!(elem[0] && elem[0].parentNode);
+  const phase = scope && scope.$root && scope.$root.$$phase;
+
+  console.log(`[ng_react] renderComponent: ${componentName} into <${tagName}> inDOM=${inDOM} phase=${phase}`);
+
   const doRender = () => {
     if (elem[0] && elem[0].ownerDocument) {
-      ReactDOM.render(React.createElement(component, props), elem[0]);
+      console.log(`[ng_react] doRender: ReactDOM.render ${componentName} into <${tagName}> parentNode=${!!elem[0].parentNode} innerHTML="${elem[0].innerHTML.slice(0,60)}"`);
+      try {
+        ReactDOM.render(React.createElement(component, props), elem[0]);
+        console.log(`[ng_react] doRender SUCCESS: ${componentName} childCount=${elem[0].childNodes.length} innerHTML="${elem[0].innerHTML.slice(0,80)}"`);
+      } catch(e) {
+        console.error(`[ng_react] doRender FAILED: ${componentName}`, e);
+      }
+    } else {
+      console.warn(`[ng_react] doRender SKIPPED: ${componentName} elem[0].ownerDocument=${elem[0] && !!elem[0].ownerDocument}`);
     }
   };
 
-  // If the element is already attached to the document, render synchronously.
-  // This handles cases like ssStatsOptions where $compile fires after the element
-  // is appended to the DOM — $evalAsync may not fire in time (or at all) when
-  // called from inside a $watch that is already completing its $digest cycle.
-  // For elements NOT yet in the DOM (e.g. freshly-created detached elements),
-  // fall back to $evalAsync which fires at end of the current digest.
   if (elem[0] && elem[0].parentNode) {
     doRender();
   } else {
+    console.log(`[ng_react] deferring via $evalAsync: ${componentName}`);
     scope.$evalAsync(doRender);
   }
 }
@@ -286,6 +296,8 @@ const reactDirective = $injector => {
         // The captured HTML is passed as __innerHTML__ so React can render it as children.
         const transcludedHTML = elem[0].innerHTML ? elem[0].innerHTML.trim() : '';
 
+        console.log(`[ng_react] link: ${reactComponentName} elem=<${elem[0].tagName}> inDOM=${!!elem[0].parentNode} transcludedHTML="${transcludedHTML.slice(0,60)}" attrs=${JSON.stringify(Object.keys(attrs.$attr || {}))}`);
+
         // For info-popover elements, immediately add the CSS classes to the directive
         // element itself — mirroring what the old Angular tether-drop directive did
         // with elem.addClass(). This makes the element visible as a proper flex item
@@ -294,6 +306,7 @@ const reactDirective = $injector => {
           const mode = attrs.mode || 'right-normal';
           elem[0].classList.add('gf-form-help-icon');
           elem[0].classList.add(`gf-form-help-icon--${mode}`);
+          console.log(`[ng_react] InfoPopover: added classes, elem.classList=${elem[0].className}`);
         }
 
         // if props is not defined, fall back to use the React component's propTypes if present
