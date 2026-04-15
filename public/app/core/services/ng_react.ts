@@ -289,6 +289,16 @@ const reactDirective = $injector => {
         // The captured HTML is passed as __innerHTML__ so React can render it as children.
         const transcludedHTML = elem[0].innerHTML ? elem[0].innerHTML.trim() : '';
 
+        // For info-popover elements, immediately add the CSS classes to the directive
+        // element itself — mirroring what the old Angular tether-drop directive did
+        // with elem.addClass(). This makes the element visible as a proper flex item
+        // inside gf-form-label before React mounts.
+        if (reactComponentName === 'InfoPopover') {
+          const mode = attrs.mode || 'right-normal';
+          elem[0].classList.add('gf-form-help-icon');
+          elem[0].classList.add(`gf-form-help-icon--${mode}`);
+        }
+
         // if props is not defined, fall back to use the React component's propTypes if present
         props = props || Object.keys(reactComponent.propTypes || {});
 

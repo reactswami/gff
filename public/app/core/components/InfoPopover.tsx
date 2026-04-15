@@ -76,17 +76,20 @@ export const InfoPopover: React.FC<InfoPopoverProps> = ({
   // Map mode to a CSS modifier class — mirrors the original elem.addClass logic
   const modeClass = mode ? `gf-form-help-icon--${mode}` : '';
 
+  // When used from Angular templates via ng_react, the outer <info-popover> element
+  // already has gf-form-help-icon classes added by ng_react's link function.
+  // We still need the wrapper span for JSX usage (where there's no Angular element).
+  // The wrapper span is always rendered — in Angular usage it's nested inside
+  // <info-popover class="gf-form-help-icon"> which provides the layout.
   return (
     <span
       className={`gf-form-help-icon ${modeClass}`}
-      style={{ position: 'relative', display: 'inline-block' }}
+      style={{ position: 'relative', display: 'inline-block', cursor: 'help' }}
       onMouseEnter={show}
       onMouseLeave={hide}
     >
-      {/* The info circle icon — same as the Angular directive's template */}
       <i ref={iconRef} className="fa fa-info-circle" />
 
-      {/* Tooltip popup — mimics .drop-help positioning */}
       {visible && (
         <div
           className="drop-help drop-help--react"
@@ -99,6 +102,7 @@ export const InfoPopover: React.FC<InfoPopoverProps> = ({
             zIndex: 9999,
             minWidth: 200,
             maxWidth: 400,
+            pointerEvents: 'auto',
           }}
           onMouseEnter={show}
           onMouseLeave={hide}
