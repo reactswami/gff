@@ -73,13 +73,22 @@ export class GfFormSwitch extends PureComponent<GfFormSwitchProps, State> {
       labelClass = '',
       switchClass = '',
       tooltip,
-      className = '',
+      className,
     } = this.props;
 
     const { id } = this.state;
 
-    return (
-      <div className={className}>
+    // When used from Angular HTML templates via ng_react, the outer <gf-form-switch>
+    // element itself carries class="gf-form" and is the flex row container.
+    // React renders INTO that element, so we must NOT add an extra wrapping div —
+    // it would create a nested flex container, pushing label above the switch.
+    // The old Angular directive also rendered label + switch as direct siblings.
+    //
+    // When used from JSX (GraphLegendEditor, DashLinksEditor, etc.), className is
+    // provided explicitly (e.g. className="gf-form") and the wrapper div IS needed
+    // to establish the flex row context.
+    const inner = (
+      <>
         {label && (
           <label
             htmlFor={id}
@@ -104,7 +113,10 @@ export class GfFormSwitch extends PureComponent<GfFormSwitchProps, State> {
           />
           <label htmlFor={id} data-on="Yes" data-off="No" />
         </div>
-      </div>
+      </>
     );
+
+    // Only wrap in a div when className is explicitly supplied (JSX usage).
+    return className ? <div className={className}>{inner}</div> : inner;
   }
 }
