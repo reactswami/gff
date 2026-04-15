@@ -130,7 +130,9 @@ export function registerAngularDirectives() {
   react2AngularDirective('dashboardSearch', DashboardSearch, []);
 
   // Navbar — replaces navbar Angular directive + navbar.html (breadcrumb rendering).
-  // dashboard-search stays Angular, kept in navbar.html after the React component tag.
+  // dashboard-search is NOW also React (DashboardSearch.tsx, registered above).
+  // navbar.html is effectively dead — navbarDirective is commented out and gf-page
+  // (the only consumer) is never used in any route template.
   react2AngularDirective('navbar', Navbar, [
     ['model', { watchDepth: 'reference' }],
   ]);

@@ -1,8 +1,9 @@
 // Replaces: public/app/core/components/navbar/navbar.html
 //           + NavbarCtrl in navbar.ts
 //
-// USAGE SITE: gf_page.ts template embeds <navbar model="model">
-//   which is used by all non-dashboard pages (manage dashboards, plugins, etc.)
+// USAGE SITE: gf_page.ts embeds <navbar model="model"> but gf-page is never used
+//   in any route template — this is dead code. Actual pages use <page-header> instead.
+//   The Navbar registration is kept for safety in case any template references it.
 //
 // Directives in original template:
 //   ng-repeat → map()             plain array rendering
