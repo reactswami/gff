@@ -73,14 +73,60 @@ export const InfoPopover: React.FC<InfoPopoverProps> = ({
     hideTimer.current = setTimeout(() => setVisible(false), 100);
   }, []);
 
-  // Map mode to a CSS modifier class — mirrors the original elem.addClass logic
   const modeClass = mode ? `gf-form-help-icon--${mode}` : '';
 
-  // When used from Angular templates via ng_react, the outer <info-popover> element
-  // already has gf-form-help-icon classes added by ng_react's link function.
-  // We still need the wrapper span for JSX usage (where there's no Angular element).
-  // The wrapper span is always rendered — in Angular usage it's nested inside
-  // <info-popover class="gf-form-help-icon"> which provides the layout.
+  // The popup panel — used in both Angular and JSX render paths
+  const popup = visible ? (
+    <div
+      className="drop-help"
+      style={{
+        position: 'fixed',
+        zIndex: 9999,
+        minWidth: 200,
+        maxWidth: 400,
+        pointerEvents: 'auto',
+      }}
+      ref={(el) => {
+        // Position the popup relative to the icon after mount
+        if (el && iconRef.current) {
+          const iconRect = iconRef.current.getBoundingClientRect();
+          el.style.top = `${iconRect.top + iconRect.height / 2 - el.offsetHeight / 2}px`;
+          el.style.left = `${iconRect.right + 8}px`;
+        }
+      }}
+      onMouseEnter={show}
+      onMouseLeave={hide}
+    >
+      <div className="markdown-html">
+        {children
+          ? children
+          : __innerHTML__
+            ? <span dangerouslySetInnerHTML={{ __html: __innerHTML__ }} />
+            : null}
+      </div>
+    </div>
+  ) : null;
+
+  // Angular usage: <info-popover> element already has gf-form-help-icon classes
+  // added by ng_react. Render ONLY the icon directly — no wrapper span.
+  // Adding a wrapper span creates double nesting which breaks float:right layout
+  // (label text wraps to next line) and adds duplicate CSS classes.
+  if (__innerHTML__ !== undefined) {
+    return (
+      <>
+        <i
+          ref={iconRef}
+          className="fa fa-info-circle"
+          style={{ cursor: 'help' }}
+          onMouseEnter={show}
+          onMouseLeave={hide}
+        />
+        {popup}
+      </>
+    );
+  }
+
+  // JSX usage: no outer Angular element, render full wrapper span
   return (
     <span
       className={`gf-form-help-icon ${modeClass}`}
@@ -89,33 +135,7 @@ export const InfoPopover: React.FC<InfoPopoverProps> = ({
       onMouseLeave={hide}
     >
       <i ref={iconRef} className="fa fa-info-circle" />
-
-      {visible && (
-        <div
-          className="drop-help drop-help--react"
-          style={{
-            position: 'absolute',
-            left: '100%',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            marginLeft: 8,
-            zIndex: 9999,
-            minWidth: 200,
-            maxWidth: 400,
-            pointerEvents: 'auto',
-          }}
-          onMouseEnter={show}
-          onMouseLeave={hide}
-        >
-          <div className="markdown-html">
-            {children
-              ? children
-              : __innerHTML__
-                ? <span dangerouslySetInnerHTML={{ __html: __innerHTML__ }} />
-                : null}
-          </div>
-        </div>
-      )}
+      {popup}
     </span>
   );
 };
